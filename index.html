@@ -99,14 +99,14 @@
             box-shadow: 0 5px 20px rgba(123, 47, 247, 0.5);
         }
         
-        .toggle-mode {
+        .toggle-mode-btn {
             text-align: center;
             margin-top: 20px;
             color: #c084fc;
             cursor: pointer;
         }
         
-        .toggle-mode:hover {
+        .toggle-mode-btn:hover {
             color: #e879f9;
             text-decoration: underline;
         }
@@ -248,9 +248,9 @@
                     <input type="password" id="loginPassword" placeholder="Mot de passe">
                 </div>
                 <button class="btn-login" onclick="login()">🚀 CONNEXION</button>
-                <div class="toggle-mode" onclick="toggleMode()">
+                <button class="toggle-mode" onclick="toggleMode()">
                     Pas de compte ? <strong>Créer un compte</strong>
-                </div>
+                </button>
             </div>
             
             <div id="registerForm" style="display: none;">
@@ -1843,3 +1843,4 @@
 </body>
 
 </html>
+
