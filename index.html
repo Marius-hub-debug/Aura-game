@@ -231,49 +231,51 @@
     </style>
 </head>
 <body>
-    <!-- ÉCRAN DE CONNEXION -->
-    <div id="loginScreen">
-        <div class="login-box">
-            <h1 class="login-title">✨ EMPIRE DE L'AURA ✨</h1>
-            
-            <div class="error-msg" id="errorMsg"></div>
-            
-            <div id="loginForm">
-                <div class="input-group">
-                    <label>👤 Pseudo</label>
-                    <input type="text" id="loginUsername" placeholder="3-20 caractères" maxlength="20">
-                </div>
-                <div class="input-group">
-                    <label>🔒 Mot de passe</label>
-                    <input type="password" id="loginPassword" placeholder="Mot de passe">
-                </div>
-                <button class="btn-login" onclick="login()">🚀 CONNEXION</button>
-                <button class="toggle-mode" onclick="toggleMode()">
-                    Pas de compte ? <strong>Créer un compte</strong>
-                </button>
-            </div>
-            
-            <div id="registerForm" style="display: none;">
-                <div class="input-group">
-                    <label>👤 Pseudo</label>
-                    <input type="text" id="registerUsername" placeholder="3-20 caractères" maxlength="20">
-                </div>
-                <div class="input-group">
-                    <label>🔒 Mot de passe</label>
-                    <input type="password" id="registerPassword" placeholder="Minimum 6 caractères">
-                </div>
-                <div class="input-group">
-                    <label>🔒 Confirmer mot de passe</label>
-                    <input type="password" id="registerPasswordConfirm" placeholder="Retaper le mot de passe">
-                </button>
-                <button class="btn-login" onclick="register()">✨ CRÉER COMPTE</button>
-               <button type="button" class="toggle-mode-btn" onclick="toggleMode()">
-    Pas de compte ? <span style="font-weight:bold;">Créer un compte</span>
-</button>
+<!-- ÉCRAN DE CONNEXION -->
+<div id="loginScreen">
+    <div class="login-box">
+        <h1 class="login-title">✨ EMPIRE DE L'AURA ✨</h1>
 
+        <div class="error-msg" id="errorMsg"></div>
+
+        <!-- FORMULAIRE DE CONNEXION -->
+        <div id="loginForm">
+            <div class="input-group">
+                <label>👤 Pseudo</label>
+                <input type="text" id="loginUsername" placeholder="3-20 caractères" maxlength="20">
             </div>
+            <div class="input-group">
+                <label>🔒 Mot de passe</label>
+                <input type="password" id="loginPassword" placeholder="Mot de passe">
+            </div>
+            <button type="button" class="btn-login" onclick="login()">🚀 CONNEXION</button>
+            <button type="button" class="toggle-mode-btn" onclick="toggleMode()">
+                Pas de compte ? <span style="font-weight:bold;">Créer un compte</span>
+            </button>
+        </div>
+
+        <!-- FORMULAIRE D'INSCRIPTION -->
+        <div id="registerForm" style="display: none;">
+            <div class="input-group">
+                <label>👤 Pseudo</label>
+                <input type="text" id="registerUsername" placeholder="3-20 caractères" maxlength="20">
+            </div>
+            <div class="input-group">
+                <label>🔒 Mot de passe</label>
+                <input type="password" id="registerPassword" placeholder="Minimum 6 caractères">
+            </div>
+            <div class="input-group">
+                <label>🔒 Confirmer mot de passe</label>
+                <input type="password" id="registerPasswordConfirm" placeholder="Retaper le mot de passe">
+            </div>
+            <button type="button" class="btn-login" onclick="register()">✨ CRÉER COMPTE</button>
+            <button type="button" class="toggle-mode-btn" onclick="toggleMode()">
+                Déjà un compte ? <span style="font-weight:bold;">Se connecter</span>
+            </button>
         </div>
     </div>
+</div>
+
     
     <!-- BOUTON CLASSEMENT -->
     <button class="leaderboard-btn" id="leaderboardBtn" style="display: none;" onclick="showLeaderboard()">
@@ -1844,6 +1846,7 @@
 </body>
 
 </html>
+
 
 
 
