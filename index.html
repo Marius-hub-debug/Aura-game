@@ -302,20 +302,24 @@
         let currentUsername = null;
         
         // ========== AUTHENTIFICATION ==========
-        function toggleMode() {
-            const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('registerForm');
-            
-            if (loginForm.style.display === 'none') {
-                loginForm.style.display = 'block';
-                registerForm.style.display = 'none';
-            } else {
-                loginForm.style.display = 'none';
-                registerForm.style.display = 'block';
-            }
-            
-            hideError();
-        }
+    function toggleMode() {
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+
+    // On utilise getComputedStyle pour vérifier si c'est visible
+    const loginVisible = window.getComputedStyle(loginForm).display !== 'none';
+
+    if (loginVisible) {
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+    } else {
+        loginForm.style.display = 'block';
+        registerForm.style.display = 'none';
+    }
+
+    hideError();
+}
+
         
         function showError(msg) {
             const errorEl = document.getElementById('errorMsg');
@@ -1837,4 +1841,5 @@
         
     </script>
 </body>
+
 </html>
