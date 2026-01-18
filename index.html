@@ -302,10 +302,10 @@
 }
 
         // ========== CONFIGURATION SUPABASE ==========
-        const SUPABASE_URL = 'https://uvokzzjgbcyuvheppynm.supabase.co';  // ⚠️ REMPLACE PAR TON URL
+        const SUPABASE_URL = 'https://uvokzzjgbcyuvheppynm.client.co';  // ⚠️ REMPLACE PAR TON URL
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2b2t6empnYmN5dXZoZXBweW5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2NjM4MDIsImV4cCI6MjA4NDIzOTgwMn0.HU2fWuYugDi9dP3lx3xg9Wmxq4xAN9nDYgdEm-YcRPU';   // ⚠️ REMPLACE PAR TA CLÉ
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const client = window.client.createClient(SUPABASE_URL, SUPABASE_KEY);
         
         let userToken = null;
         let currentUsername = null;
@@ -364,7 +364,7 @@ function toggleMode() {
             }
             
             try {
-                const { data, error } = await supabase.rpc('create_user', {
+                const { data, error } = await client.rpc('create_user', {
                     p_username: username,
                     p_password: password
                 });
@@ -396,7 +396,7 @@ function toggleMode() {
             }
             
             try {
-                const { data, error } = await supabase.rpc('login_user', {
+                const { data, error } = await client.rpc('login_user', {
                     p_username: username,
                     p_password: password
                 });
@@ -433,7 +433,7 @@ function toggleMode() {
             if (!userToken) return;
             
             try {
-                const { data, error } = await supabase.rpc('save_game', {
+                const { data, error } = await client.rpc('save_game', {
                     p_token: userToken,
                     p_game_data: game,
                     p_total_aura: Math.floor(game.totalAura),
@@ -453,7 +453,7 @@ function toggleMode() {
             if (!userToken) return;
             
             try {
-                const { data, error } = await supabase.rpc('load_game', {
+                const { data, error } = await client.rpc('load_game', {
                     p_token: userToken
                 });
                 
@@ -1854,6 +1854,7 @@ function toggleMode() {
 </body>
 
 </html>
+
 
 
 
