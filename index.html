@@ -305,7 +305,7 @@
         const SUPABASE_URL = 'https://uvokzzjgbcyuvheppynm.supabase.co';  // ⚠️ REMPLACE PAR TON URL
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2b2t6empnYmN5dXZoZXBweW5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2NjM4MDIsImV4cCI6MjA4NDIzOTgwMn0.HU2fWuYugDi9dP3lx3xg9Wmxq4xAN9nDYgdEm-YcRPU';   // ⚠️ REMPLACE PAR TA CLÉ
         
-        const client = client.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         
         let userToken = null;
         let currentUsername = null;
@@ -476,10 +476,10 @@ function toggleMode() {
         // ========== CLASSEMENT ==========
         async function showLeaderboard() {
             try {
-                const { data, error } = await supabase
-                    .from('leaderboard')
-                    .select('*')
-                    .limit(50);
+       const { data, error } = await client
+    .from('leaderboard')
+    .select('*')
+    .limit(50);
                 
                 if (error) throw error;
                 
@@ -1854,6 +1854,7 @@ function toggleMode() {
 </body>
 
 </html>
+
 
 
 
