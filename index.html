@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+    
         body {
             font-family: 'Courier New', monospace;
             background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
@@ -297,6 +297,10 @@
     <!-- Garde exactement le même HTML du jeu -->
 
     <script>
+        function notify(msg) {
+    console.log(msg);
+}
+
         // ========== CONFIGURATION SUPABASE ==========
         const SUPABASE_URL = 'https://uvokzzjgbcyuvheppynm.supabase.co';  // ⚠️ REMPLACE PAR TON URL
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2b2t6empnYmN5dXZoZXBweW5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2NjM4MDIsImV4cCI6MjA4NDIzOTgwMn0.HU2fWuYugDi9dP3lx3xg9Wmxq4xAN9nDYgdEm-YcRPU';   // ⚠️ REMPLACE PAR TA CLÉ
@@ -1849,6 +1853,7 @@ function toggleMode() {
 </body>
 
 </html>
+
 
 
 
