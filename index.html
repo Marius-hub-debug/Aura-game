@@ -305,25 +305,26 @@
         
         let userToken = null;
         let currentUsername = null;
+        let isLoginMode = true;
         
         // ========== AUTHENTIFICATION ==========
-    function toggleMode() {
+function toggleMode() {
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
 
-    // On utilise getComputedStyle pour vérifier si c'est visible
-    const loginVisible = window.getComputedStyle(loginForm).display !== 'none';
+    isLoginMode = !isLoginMode;
 
-    if (loginVisible) {
-        loginForm.style.display = 'none';
-        registerForm.style.display = 'block';
-    } else {
+    if (isLoginMode) {
         loginForm.style.display = 'block';
         registerForm.style.display = 'none';
+    } else {
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
     }
 
     hideError();
 }
+
 
         
         function showError(msg) {
@@ -1848,6 +1849,7 @@
 </body>
 
 </html>
+
 
 
 
