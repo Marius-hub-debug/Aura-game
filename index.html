@@ -295,25 +295,22 @@
     
     <!-- JEU (tout le HTML du jeu existant) -->
     <!-- Garde exactement le même HTML du jeu -->
-
-    <script>
-        function notify(msg) {
+<script>
+function notify(msg) {
     console.log(msg);
 }
 
-        // ========== CONFIGURATION SUPABASE ==========
-        const SUPABASE_URL = 'https://uvokzzjgbcyuvheppynm.supabase.co';  // ⚠️ REMPLACE PAR TON URL
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2b2t6empnYmN5dXZoZXBweW5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2NjM4MDIsImV4cCI6MjA4NDIzOTgwMn0.HU2fWuYugDi9dP3lx3xg9Wmxq4xAN9nDYgdEm-YcRPU';   // ⚠️ REMPLACE PAR TA CLÉ
-        
-        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        
-        let isLoginMode = true;
-        
-// ========== AUTHENTIFICATION ==========
-// Au début de ton fichier, change la déclaration
+// ========== CONFIGURATION SUPABASE ==========
+const SUPABASE_URL = 'https://uvokzzjgbcyuvheppynm.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2b2t6empnYmN5dXZoZXBweW5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2NjM4MDIsImV4cCI6MjA4NDIzOTgwMn0.HU2fWuYugDi9dP3lx3xg9Wmxq4xAN9nDYgdEm-YcRPU';
+
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let isLoginMode = true;
 let userToken = localStorage.getItem('authToken') || null;
 let currentUsername = localStorage.getItem('username') || null;
 
+// ========== AUTHENTIFICATION ==========
 function toggleMode() {
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
@@ -375,10 +372,6 @@ async function register() {
             userToken = data[0].token;
             currentUsername = username;
             localStorage.setItem('authToken', userToken);
-localStorage.setItem('username', currentUsername);
-            
-            // 🔥 SAUVEGARDER LE TOKEN
-            localStorage.setItem('authToken', userToken);
             localStorage.setItem('username', currentUsername);
             
             startGame();
@@ -414,10 +407,6 @@ async function login() {
             userToken = data[0].token;
             currentUsername = username;
             localStorage.setItem('authToken', userToken);
-localStorage.setItem('username', currentUsername);
-            
-            // 🔥 SAUVEGARDER LE TOKEN
-            localStorage.setItem('authToken', userToken);
             localStorage.setItem('username', currentUsername);
             
             await loadGameFromServer();
@@ -431,7 +420,6 @@ localStorage.setItem('username', currentUsername);
     }
 }
 
-// 🔥 NOUVELLE FONCTION : Déconnexion
 function logout() {
     localStorage.removeItem('authToken');
     localStorage.removeItem('username');
@@ -441,7 +429,6 @@ function logout() {
     document.getElementById('loginScreen').classList.remove('hidden');
     document.getElementById('leaderboardBtn').style.display = 'none';
     
-    // Reset le jeu
     location.reload();
 }
 
@@ -451,35 +438,21 @@ function startGame() {
     
     notify(`Bienvenue ${currentUsername} !`);
     
-    // Démarrer la sauvegarde automatique
-    setInterval(saveGameToServer, 30000); // Sauvegarde toutes les 30 secondes
+    setInterval(saveGameToServer, 30000);
 }
 
-// 🔥 NOUVEAU : Vérifier si l'utilisateur est déjà connecté au chargement
 async function checkExistingSession() {
     if (userToken) {
         try {
-            // Vérifier que le token est toujours valide
-            const { data, error } = await client.rpc('verify_token', {
-                p_token: userToken
-            });
-            
-            if (data) {
-                // Token valide, charger le jeu
-                await loadGameFromServer();
-                startGame();
-            } else {
-                // Token invalide, déconnecter
-                logout();
-            }
+            await loadGameFromServer();
+            startGame();
         } catch (err) {
-            console.error('Erreur de vérification du token:', err);
+            console.error('Session invalide:', err);
             logout();
         }
     }
 }
 
-// 🔥 Appeler au chargement de la page
 window.addEventListener('DOMContentLoaded', () => {
     checkExistingSession();
 });
@@ -502,7 +475,6 @@ async function saveGameToServer() {
         console.log('✅ Jeu sauvegardé sur le serveur');
     } catch (err) {
         console.error('❌ Erreur de sauvegarde:', err);
-        // Si le token est invalide, déconnecter
         if (err.message.includes('token')) {
             logout();
         }
@@ -531,51 +503,50 @@ async function loadGameFromServer() {
         console.error('❌ Erreur de chargement:', err);
     }
 }
-        
-        // ========== CLASSEMENT ==========
-        async function showLeaderboard() {
-            try {
-       const { data, error } = await client
-    .from('leaderboard')
-    .select('*')
-    .limit(50);
-                
-                if (error) throw error;
-                
-                const list = document.getElementById('leaderboardList');
-                list.innerHTML = '';
-                
-                data.forEach((player, index) => {
-                    const li = document.createElement('li');
-                    li.className = 'leaderboard-item';
-                    li.innerHTML = `
-                        <span class="rank">#${index + 1}</span>
-                        <span class="player-name">${player.username}</span>
-                        <span class="player-score">${formatNumber(player.total_aura)} Aura</span>
-                    `;
-                    list.appendChild(li);
-                });
-                
-                document.getElementById('leaderboardModal').classList.add('active');
-            } catch (err) {
-                console.error('Erreur chargement classement:', err);
-                notify('❌ Erreur de chargement du classement');
-            }
-        }
-        
-        function closeLeaderboard() {
-            document.getElementById('leaderboardModal').classList.remove('active');
-        }
-        
-        function formatNumber(n) {
-            if (n >= 1e12) return (n / 1e12).toFixed(2) + 'T';
-            if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
-            if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
-            if (n >= 1e3) return (n / 1e3).toFixed(2) + 'k';
-            return Math.floor(n).toLocaleString();
-        }
 
-    </script>
+// ========== CLASSEMENT ==========
+async function showLeaderboard() {
+    try {
+        const { data, error } = await client
+            .from('leaderboard')
+            .select('*')
+            .limit(50);
+        
+        if (error) throw error;
+        
+        const list = document.getElementById('leaderboardList');
+        list.innerHTML = '';
+        
+        data.forEach((player, index) => {
+            const li = document.createElement('li');
+            li.className = 'leaderboard-item';
+            li.innerHTML = `
+                <span class="rank">#${index + 1}</span>
+                <span class="player-name">${player.username}</span>
+                <span class="player-score">${formatNumber(player.total_aura)} Aura</span>
+            `;
+            list.appendChild(li);
+        });
+        
+        document.getElementById('leaderboardModal').classList.add('active');
+    } catch (err) {
+        console.error('Erreur chargement classement:', err);
+        notify('❌ Erreur de chargement du classement');
+    }
+}
+
+function closeLeaderboard() {
+    document.getElementById('leaderboardModal').classList.remove('active');
+}
+
+function formatNumber(n) {
+    if (n >= 1e12) return (n / 1e12).toFixed(2) + 'T';
+    if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+    if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+    if (n >= 1e3) return (n / 1e3).toFixed(2) + 'k';
+    return Math.floor(n).toLocaleString();
+}
+</script>
         // ========== TOUT LE CODE DU JEU EXISTANT ==========
 <!DOCTYPE html>
 <html lang="fr">
@@ -1913,6 +1884,7 @@ async function loadGameFromServer() {
 </body>
 
 </html>
+
 
 
 
