@@ -442,20 +442,27 @@ function startGame() {
 }
 
 async function checkExistingSession() {
-    if (userToken) {
-        try {
-            await loadGameFromServer();
-            startGame();
-        } catch (err) {
-            console.error('Session invalide:', err);
-            logout();
+    const token = localStorage.getItem('authToken');
+    if (!token) return; // Pas de session existante
+
+    try {
+        // Vérifie avec la fonction SQL verify_token si le token est valide
+        const { data, error } = await client.rpc('verify_token', { p_token: token });
+        if (error || !data) {
+            logout(); // token invalide → déconnexion
+            return;
         }
+
+        userToken = token;
+        currentUsername = localStorage.getItem('username');
+        await loadGameFromServer();
+        startGame();
+    } catch (err) {
+        console.error('Session invalide:', err);
+        logout();
     }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    checkExistingSession();
-});
 
 // ========== SAUVEGARDE ==========
 async function saveGameToServer() {
@@ -1884,6 +1891,7 @@ function formatNumber(n) {
 </body>
 
 </html>
+
 
 
 
