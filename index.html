@@ -307,8 +307,6 @@
         
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         
-        let userToken = null;
-        let currentUsername = null;
         let isLoginMode = true;
         
 // ========== AUTHENTIFICATION ==========
@@ -376,6 +374,8 @@ async function register() {
         if (data[0].success) {
             userToken = data[0].token;
             currentUsername = username;
+            localStorage.setItem('authToken', userToken);
+localStorage.setItem('username', currentUsername);
             
             // 🔥 SAUVEGARDER LE TOKEN
             localStorage.setItem('authToken', userToken);
@@ -413,6 +413,8 @@ async function login() {
         if (data[0].success) {
             userToken = data[0].token;
             currentUsername = username;
+            localStorage.setItem('authToken', userToken);
+localStorage.setItem('username', currentUsername);
             
             // 🔥 SAUVEGARDER LE TOKEN
             localStorage.setItem('authToken', userToken);
@@ -1911,6 +1913,7 @@ async function loadGameFromServer() {
 </body>
 
 </html>
+
 
 
 
