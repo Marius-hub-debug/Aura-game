@@ -958,6 +958,8 @@ function formatNumber(n) {
             <div class="tab" onclick="switchTab('challenges')">🎯 Défis</div>
             <div class="tab" onclick="switchTab('stats')">📊 Stats</div>
             <div class="tab" onclick="switchTab('achievements')">🏆 Succès</div>
+            <button onclick="spinDailyWheel()">🎡 Tourner la roue quotidienne</button>
+
         </div>
         
         <div id="main" class="tab-content active">
@@ -1364,6 +1366,66 @@ function formatNumber(n) {
             {name: '⚡ Surtension!', effect: 'instant', value: 1000, duration: 1, desc: '+1000 Aura instantanément'},
             {name: '🎁 Découverte!', effect: 'fragments', value: 10, duration: 1, desc: '+10 fragments cosmiques'}
         ];
+        // ===== Roue quotidienne =====
+const dailyWheelRewards = [
+    {type: 'aura', value: 100},
+    {type: 'aura', value: 500},
+    {type: 'essence', value: 1},
+    {type: 'crystals', value: 5},
+    {type: 'fragments', value: 20},
+    {type: 'artifact', value: null}, // artefact aléatoire
+    {type: 'multiplier', value: 2}   // bonus temporaire
+];
+
+let lastWheelDate = null;
+
+function canSpinWheel() {
+    const today = new Date().toDateString();
+    return lastWheelDate !== today;
+}
+
+function spinDailyWheel() {
+    if (!canSpinWheel()) {
+        notify("❌ Vous avez déjà fait tourner la roue aujourd'hui!");
+        return;
+    }
+
+    const reward = dailyWheelRewards[Math.floor(Math.random() * dailyWheelRewards.length)];
+
+    switch (reward.type) {
+        case 'aura': 
+            game.aura += reward.value;
+            game.totalAura += reward.value;
+            notify(`🎉 La roue vous donne +${reward.value} Aura!`);
+            break;
+        case 'essence':
+            game.essence += reward.value;
+            notify(`✨ La roue vous donne +${reward.value} Essence!`);
+            break;
+        case 'crystals':
+            game.crystals += reward.value;
+            notify(`💎 La roue vous donne +${reward.value} Cristaux!`);
+            break;
+        case 'fragments':
+            game.fragments += reward.value;
+            notify(`🔮 La roue vous donne +${reward.value} Fragments!`);
+            break;
+        case 'artifact':
+            const artifact = artifactTypes[Math.floor(Math.random() * artifactTypes.length)];
+            game.artifacts.push(artifact);
+            notify(`🗝️ La roue vous donne un artefact: ${artifact.name}!`);
+            break;
+        case 'multiplier':
+            game.currentEvent = {name:'Bonus roue', effect:'mult', value: reward.value, duration: 60};
+            game.eventTimer = 60;
+            notify(`⚡ Bonus x${reward.value} pour 60s!`);
+            break;
+    }
+
+    lastWheelDate = new Date().toDateString();
+    updateDisplay();
+}
+
         
         function switchTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1635,60 +1697,73 @@ function convertToEssence() {
             }
         }
         
-        function getMultiplier() {
-            let mult = 1;
-            mult *= 1 + (game.crystals * 0.1);
-            mult *= Math.pow(1.5, game.efficiencyUpgrade);
-            
-            if (game.currentEvent && game.currentEvent.effect === 'mult') {
-                mult *= game.currentEvent.value;
-            }
-            
-            game.artifacts.forEach(a => {
-                if (a.effect === 'mult') mult *= a.value;
-            });
-            
-            if (game.completedChallenges.includes(3)) mult *= 2;
-            
-            return mult;
-        }
+function getMultiplier() {
+    let mult = 1;
+
+    // Progression logarithmique sur les cristaux
+    mult *= 1 + Math.log10(game.crystals + 1); 
+
+    // Progression exponentielle sur l'efficacité
+    mult *= Math.pow(1.5, game.efficiencyUpgrade);
+
+    // Bonus d’événement
+    if (game.currentEvent && game.currentEvent.effect === 'mult') {
+        mult *= game.currentEvent.value;
+    }
+
+    // Artefacts multiplicateurs
+    game.artifacts.forEach(a => {
+        if (a.effect === 'mult') mult *= a.value;
+        if (a.effect === 'essence') mult *= Math.pow(1.2, game.essence); // essence augmente multiplicateur
+    });
+
+    // Défi 3
+    if (game.completedChallenges.includes(3)) mult *= 2;
+
+    return mult;
+}
+
         
-        function getAuraPerSecond() {
-            let rate = 0;
-            rate += game.collectors * 1;
-            rate += game.amplifiers * 10;
-            rate += game.resonators * 100;
-            rate *= getMultiplier();
-            return rate;
-        }
+function getAuraPerSecond() {
+    let rate = 0;
+
+    // Progression exponentielle selon le nombre d’objets
+    rate += Math.pow(1.1, game.collectors) - 1;
+    rate += Math.pow(1.12, game.amplifiers) - 1;
+    rate += Math.pow(1.15, game.resonators) - 1;
+
+    rate *= getMultiplier();
+    return rate;
+}
+
         
-        function prestige() {
-            if (game.totalAura >= 1000000) {
-                const crystalsGained = Math.floor(Math.sqrt(game.totalAura / 100000));
-                game.crystals += crystalsGained;
-                game.stats.totalPrestiges++;
-                
-                game.aura = 0;
-                game.essence = 0;
-                game.totalAura = 0;
-                game.clickPower = 1;
-                game.collectors = 0;
-                game.amplifiers = 0;
-                game.resonators = 0;
-                game.clickUpgrade = 0;
-                game.efficiencyUpgrade = 0;
-                game.collectorCost = 10;
-                game.amplifierCost = 100;
-                game.resonatorCost = 5;
-                game.clickCost = 50;
-                game.efficiencyCost = 2;
-                
-                notify(`Prestige! +${crystalsGained} cristaux`);
-                updateDisplay();
-                checkAchievements();
-            }
-        }
-        
+function prestige() {
+    if (game.totalAura >= 1000000) {
+        const crystalsGained = Math.floor(Math.log10(game.totalAura / 100000) * 10);
+        game.crystals += crystalsGained;
+        game.stats.totalPrestiges++;
+
+        game.aura = 0;
+        game.essence = 0;
+        game.totalAura = 0;
+        game.clickPower = 1;
+        game.collectors = 0;
+        game.amplifiers = 0;
+        game.resonators = 0;
+        game.clickUpgrade = 0;
+        game.efficiencyUpgrade = 0;
+        game.collectorCost = 10;
+        game.amplifierCost = 100;
+        game.resonatorCost = 5;
+        game.clickCost = 50;
+        game.efficiencyCost = 2;
+
+        notify(`Prestige! +${crystalsGained} cristaux`);
+        updateDisplay();
+        checkAchievements();
+    }
+}
+
         function checkAchievements() {
             if (!game.achievements.first && game.totalAura >= 10) {
                 game.achievements.first = true;
@@ -1949,6 +2024,7 @@ if (convertBtn) {
 </body>
 
 </html>
+
 
 
 
