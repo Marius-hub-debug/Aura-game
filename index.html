@@ -1278,38 +1278,7 @@ function formatNumber(n) {
 
     <script>
         // ===== État de jeu minimal requis par la sauvegarde/chargement & l’UI =====
-let game = {
-    aura: 0,
-    auraRate: 0,
-    essence: 0,        // s’assurer que l’essence existe
-    crystals: 0,
-    fragments: 0,
-    totalAura: 0,
-    stats: {
-        totalPrestiges: 0
-    }
-};
-
-// Mise à jour minimale de l’UI utilisée par le load/save et d’autres logiques.
-// Placée ici pour que les appels à updateDisplay() ailleurs fonctionnent.
-function updateDisplay() {
-    // Mettre à jour les champs visibles s’ils existent
-    const elAura = document.getElementById('aura');
-    const elAuraRate = document.getElementById('auraRate');
-    const elEssence = document.getElementById('essence');
-    const elCrystals = document.getElementById('crystals');
-    const elFragments = document.getElementById('fragments');
-    const convertBtn = document.getElementById('convertBtn');
-
-    if (elAura) elAura.textContent = formatNumber(game.aura);
-    if (elAuraRate) elAuraRate.textContent = formatNumber(game.auraRate) + '/s';
-    if (elEssence) elEssence.textContent = formatNumber(game.essence);
-    if (elCrystals) elCrystals.textContent = formatNumber(game.crystals);
-    if (elFragments) elFragments.textContent = formatNumber(game.fragments);
-
-    // Activer le bouton de conversion quand on a au moins 1000 aura
-    if (convertBtn) convertBtn.disabled = !(game.aura >= 1000);
-}
+        
 
         const game = {
             aura: 0,
@@ -1435,13 +1404,6 @@ function updateDisplay() {
             checkAchievements();
         }
         
-        function convertToEssence() {
-            if (game.aura >= game.conversionCost) {
-                game.aura -= game.conversionCost;
-                game.essence++;
-                updateDisplay();
-            }
-        }
         
         function buyCollector() {
             if (game.aura >= game.collectorCost) {
@@ -1488,18 +1450,7 @@ function updateDisplay() {
                 updateDisplay();
             }
         }
-        // ===== Helpers de collecte d’Essence =====
-function collectAura() {
-    // récompense de clic simple — adapte base/multiplicateur plus tard
-    const base = 1;
-    const multiplier = 1; // remplace par ton vrai multiplicateur s’il existe
-    const gained = base * multiplier;
 
-    game.aura += gained;
-    game.totalAura += gained;
-    updateDisplay();
-}
-        
 // ===== Petits helpers =====
 function escapeHtml(str) {
     if (!str && str !== 0) return '';
@@ -1896,6 +1847,11 @@ function convertToEssence() {
             document.getElementById('playTime').textContent = Math.floor(game.stats.playTime) + 's';
             
             updateArtifactDisplay();
+            const convertBtn = document.getElementById('convertBtn');
+if (convertBtn) {
+    convertBtn.disabled = game.aura < game.conversionCost;
+}
+
         }
         
         function drawChart() {
@@ -1998,6 +1954,7 @@ function convertToEssence() {
 </body>
 
 </html>
+
 
 
 
