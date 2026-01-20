@@ -197,7 +197,23 @@
         .leaderboard-item:nth-child(1) { border-left-color: #fbbf24; }
         .leaderboard-item:nth-child(2) { border-left-color: #c0c0c0; }
         .leaderboard-item:nth-child(3) { border-left-color: #cd7f32; }
-        
+        .player-prestige {
+    margin-left: 12px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-weight: bold;
+    min-width: 110px;
+    text-align: center;
+    color: #000;
+    display:inline-block;
+}
+
+.prestige-default { background: linear-gradient(135deg, #7b2ff7, #f107a3); color: #fff; }
+.prestige-bronze  { background: linear-gradient(135deg, #cd7f32, #a55b2a); color: #000; }
+.prestige-silver  { background: linear-gradient(135deg, #c0c0c0, #9ea0a5); color: #000; }
+.prestige-gold    { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; }
+.prestige-legend  { background: linear-gradient(135deg, #ffd700, #ff8800); color: #000; box-shadow: 0 6px 20px rgba(255,200,0,0.35); }
+
         .rank {
             font-size: 1.5em;
             font-weight: bold;
@@ -305,6 +321,7 @@ const SUPABASE_URL = 'https://uvokzzjgbcyuvheppynm.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2b2t6empnYmN5dXZoZXBweW5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2NjM4MDIsImV4cCI6MjA4NDIzOTgwMn0.HU2fWuYugDi9dP3lx3xg9Wmxq4xAN9nDYgdEm-YcRPU';
 
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
 
 let isLoginMode = true;
 let userToken = localStorage.getItem('authToken') || null;
@@ -524,18 +541,26 @@ async function showLeaderboard() {
         const list = document.getElementById('leaderboardList');
         list.innerHTML = '';
         
-        data.forEach((player, index) => {
-            const li = document.createElement('li');
-            li.className = 'leaderboard-item';
-            li.innerHTML = `
-                <span class="rank">#${index + 1}</span>
-                <span class="player-name">${player.username}</span>
-                <span class="player-prestige">${formatNumber(player.prestuge_level)} Prestige</span>
-                <span class="player-score">${formatNumber(player.total_aura)} Aura</span>
+data.forEach((player, index) => {
+    const prestigeRaw = player.prestige_level ?? player.prestuge_level ?? player.prestiges ?? player.prestige ?? 0;
+    const prestigeClass = getPrestigeClass(prestigeRaw);
+    const prestigeText = `${formatNumber(prestigeRaw)} Prestige`;
 
-            `;
-            list.appendChild(li);
-        });
+    const li = document.createElement('li');
+    li.className = 'leaderboard-item';
+    li.innerHTML = `
+        <div style="display:flex; align-items:center; gap:12px; flex:1;">
+            <span class="rank">#${index + 1}</span>
+            <span class="player-name">${escapeHtml(player.username ?? '—')}</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <span class="player-prestige ${prestigeClass}">${escapeHtml(prestigeText)}</span>
+            <span class="player-score">${formatNumber(player.total_aura ?? player.totalAura ?? 0)} Aura</span>
+        </div>
+    `;
+    list.appendChild(li);
+});
+
         
         document.getElementById('leaderboardModal').classList.add('active');
     } catch (err) {
@@ -1252,6 +1277,40 @@ function formatNumber(n) {
     </div>
 
     <script>
+        // ===== État de jeu minimal requis par la sauvegarde/chargement & l’UI =====
+let game = {
+    aura: 0,
+    auraRate: 0,
+    essence: 0,        // s’assurer que l’essence existe
+    crystals: 0,
+    fragments: 0,
+    totalAura: 0,
+    stats: {
+        totalPrestiges: 0
+    }
+};
+
+// Mise à jour minimale de l’UI utilisée par le load/save et d’autres logiques.
+// Placée ici pour que les appels à updateDisplay() ailleurs fonctionnent.
+function updateDisplay() {
+    // Mettre à jour les champs visibles s’ils existent
+    const elAura = document.getElementById('aura');
+    const elAuraRate = document.getElementById('auraRate');
+    const elEssence = document.getElementById('essence');
+    const elCrystals = document.getElementById('crystals');
+    const elFragments = document.getElementById('fragments');
+    const convertBtn = document.getElementById('convertBtn');
+
+    if (elAura) elAura.textContent = formatNumber(game.aura);
+    if (elAuraRate) elAuraRate.textContent = formatNumber(game.auraRate) + '/s';
+    if (elEssence) elEssence.textContent = formatNumber(game.essence);
+    if (elCrystals) elCrystals.textContent = formatNumber(game.crystals);
+    if (elFragments) elFragments.textContent = formatNumber(game.fragments);
+
+    // Activer le bouton de conversion quand on a au moins 1000 aura
+    if (convertBtn) convertBtn.disabled = !(game.aura >= 1000);
+}
+
         const game = {
             aura: 0,
             essence: 0,
@@ -1429,6 +1488,52 @@ function formatNumber(n) {
                 updateDisplay();
             }
         }
+        // ===== Helpers de collecte d’Essence =====
+function collectAura() {
+    // récompense de clic simple — adapte base/multiplicateur plus tard
+    const base = 1;
+    const multiplier = 1; // remplace par ton vrai multiplicateur s’il existe
+    const gained = base * multiplier;
+
+    game.aura += gained;
+    game.totalAura += gained;
+    updateDisplay();
+}
+        
+// ===== Petits helpers =====
+function escapeHtml(str) {
+    if (!str && str !== 0) return '';
+    return String(str).replace(/[&<>"'`]/g, function (s) {
+        return ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+            '`': '&#x60;'
+        })[s];
+    });
+}
+
+function getPrestigeClass(prestige) {
+    prestige = Number(prestige) || 0;
+    if (prestige >= 500) return 'prestige-legend';
+    if (prestige >= 100) return 'prestige-gold';
+    if (prestige >= 50) return 'prestige-silver';
+    if (prestige >= 10) return 'prestige-bronze';
+    return 'prestige-default';
+}
+
+function convertToEssence() {
+    // conversion : 1000 Aura -> 1 Essence par clic
+    if (game.aura < 1000) return;
+    const convertCount = 1; // mettre Math.floor(game.aura / 1000) pour tout convertir d’un coup
+    game.aura -= 1000 * convertCount;
+    game.essence += 1 * convertCount;
+    updateDisplay();
+    notify(`✨ +${convertCount} Essence(s)`);
+}
+
         
         function findEnemy() {
             const level = Math.floor(game.victories / 5) + 1;
@@ -1893,6 +1998,7 @@ function formatNumber(n) {
 </body>
 
 </html>
+
 
 
 
