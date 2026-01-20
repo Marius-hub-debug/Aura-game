@@ -530,7 +530,9 @@ async function showLeaderboard() {
             li.innerHTML = `
                 <span class="rank">#${index + 1}</span>
                 <span class="player-name">${player.username}</span>
+                <span class="player-prestige">${formatNumber(player.prestuge_level)} Prestige</span>
                 <span class="player-score">${formatNumber(player.total_aura)} Aura</span>
+
             `;
             list.appendChild(li);
         });
@@ -1891,6 +1893,7 @@ function formatNumber(n) {
 </body>
 
 </html>
+
 
 
 
