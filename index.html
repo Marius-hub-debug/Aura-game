@@ -1,2053 +1,2071 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Empire de l'Aura - Online</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-    
-        body {
-            font-family: 'Courier New', monospace;
-            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
-            min-height: 100vh;
-            color: #fff;
-            padding: 20px;
-        }
-        
-        /* ÉCRAN DE CONNEXION */
-        #loginScreen {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
-            z-index: 10000;
-        }
-        
-        #loginScreen.hidden { display: none; }
-        
-        .login-box {
-            background: rgba(138, 43, 226, 0.15);
-            border: 2px solid rgba(147, 51, 234, 0.4);
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 0 40px rgba(147, 51, 234, 0.3);
-        }
-        
-        .login-title {
-            font-size: 2.5em;
-            background: linear-gradient(45deg, #00d4ff, #7b2ff7, #f107a3);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .input-group {
-            margin-bottom: 20px;
-        }
-        
-        .input-group label {
-            display: block;
-            color: #c084fc;
-            margin-bottom: 8px;
-            font-size: 1.1em;
-        }
-        
-        .input-group input {
-            width: 100%;
-            padding: 12px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 2px solid rgba(192, 132, 252, 0.3);
-            border-radius: 8px;
-            color: #fff;
-            font-size: 1em;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .input-group input:focus {
-            outline: none;
-            border-color: #7b2ff7;
-            box-shadow: 0 0 10px rgba(123, 47, 247, 0.5);
-        }
-        
-        .btn-login {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #7b2ff7, #f107a3);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 1.2em;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(123, 47, 247, 0.5);
-        }
-        
-   .toggle-mode-btn {
-    width: 100%;
-    text-align: center;
-    margin-top: 15px;
-    padding: 10px;
-    color: #c084fc;
-    cursor: pointer;
-    background: transparent;
-    border: none;
-    font-family: 'Courier New', monospace;
-    font-size: 1em;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Empire de l'Aura — HARDCORE</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --p:#7b2ff7;--pk:#f107a3;--cy:#00d4ff;--go:#fbbf24;--gr:#00ff88;--rd:#ff4757;
+  --mn:#ff6b35;--ec:#e0aaff;
+  --bg1:#090a0f;--bg2:#0d0d1a;--bg3:#111125;
+  --card:rgba(255,255,255,.04);--border:rgba(255,255,255,.08);
+  --text:#e2e8f0;--muted:#6b7280
 }
+html{scroll-behavior:smooth}
+body{font-family:'Courier New',monospace;background:radial-gradient(ellipse at 30% 20%,#1a063a,#090a0f 55%),radial-gradient(ellipse at 80% 80%,#001a3a,#090a0f 55%);min-height:100vh;color:var(--text);overflow-x:hidden}
 
-.toggle-mode-btn:hover {
-    color: #e879f9;
-    text-decoration: underline;
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:rgba(0,0,0,.3)}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--p),var(--pk));border-radius:9px}
+
+/* ===== NOTIFS ===== */
+#notifContainer{position:fixed;top:70px;right:12px;z-index:9000;display:flex;flex-direction:column;gap:6px;max-width:280px}
+.notif{padding:10px 14px;border-radius:8px;font-size:.82em;background:rgba(20,10,40,.9);border:1px solid var(--p);box-shadow:0 0 15px rgba(123,47,247,.3);animation:notifIn .3s ease;word-break:break-word}
+@keyframes notifIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes notifOut{to{transform:translateX(110%);opacity:0}}
+
+/* ===== LOGIN ===== */
+#loginScreen{display:flex;align-items:center;justify-content:center;min-height:100vh;position:fixed;inset:0;background:radial-gradient(ellipse at bottom,#1b2735,#090a0f);z-index:10000;transition:opacity .4s}
+#loginScreen.hidden{opacity:0;pointer-events:none}
+.login-box{background:rgba(123,47,247,.1);border:2px solid rgba(123,47,247,.35);border-radius:20px;padding:40px;max-width:400px;width:90%;box-shadow:0 0 50px rgba(123,47,247,.25),0 0 120px rgba(241,7,163,.1)}
+.login-title{font-size:2em;background:linear-gradient(45deg,var(--cy),var(--p),var(--pk));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:8px;letter-spacing:2px}
+.login-sub{color:var(--muted);text-align:center;font-size:.8em;margin-bottom:28px}
+.inp-grp{margin-bottom:18px}
+.inp-grp label{display:block;color:#c084fc;margin-bottom:7px;font-size:.9em}
+.inp-grp input{width:100%;padding:11px 14px;background:rgba(0,0,0,.35);border:2px solid rgba(192,132,252,.25);border-radius:8px;color:#fff;font-size:.95em;font-family:inherit;transition:border .2s,box-shadow .2s}
+.inp-grp input:focus{outline:none;border-color:var(--p);box-shadow:0 0 12px rgba(123,47,247,.4)}
+.btn-auth{width:100%;padding:13px;background:linear-gradient(135deg,var(--p),var(--pk));border:none;border-radius:10px;color:#fff;font-size:1.05em;font-weight:bold;cursor:pointer;transition:all .2s;font-family:inherit;margin-top:4px}
+.btn-auth:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(123,47,247,.45)}
+.toggle-auth{width:100%;text-align:center;margin-top:14px;padding:9px;color:#c084fc;cursor:pointer;background:transparent;border:none;font-family:inherit;font-size:.88em;transition:color .2s}
+.toggle-auth:hover{color:#e879f9}
+.err-msg{background:rgba(239,68,68,.18);border:1px solid #ef4444;border-radius:8px;padding:10px 12px;color:#fca5a5;margin-bottom:14px;display:none;font-size:.85em}
+
+/* ===== LEADERBOARD BTN ===== */
+.lb-btn{position:fixed;top:12px;right:12px;padding:9px 18px;background:linear-gradient(135deg,var(--go),#f59e0b);border:none;border-radius:8px;color:#000;font-weight:bold;cursor:pointer;z-index:1000;font-family:inherit;font-size:.85em;display:none;transition:all .2s}
+.lb-btn:hover{box-shadow:0 0 20px rgba(251,191,36,.7)}
+
+/* ===== MODAL ===== */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;align-items:center;justify-content:center}
+.modal.active{display:flex}
+.modal-box{background:rgba(13,13,26,.97);border:2px solid var(--p);border-radius:18px;padding:28px;max-width:600px;width:93%;max-height:82vh;overflow-y:auto}
+.modal-title{font-size:1.7em;color:var(--go);margin-bottom:18px;text-align:center}
+.lb-list{list-style:none}
+.lb-item{background:rgba(0,0,0,.3);padding:13px 16px;margin-bottom:8px;border-radius:9px;border-left:4px solid var(--p);display:flex;justify-content:space-between;align-items:center;gap:10px}
+.lb-item:nth-child(1){border-left-color:var(--go)}
+.lb-item:nth-child(2){border-left-color:#c0c0c0}
+.lb-item:nth-child(3){border-left-color:#cd7f32}
+.lb-rank{font-size:1.3em;font-weight:bold;color:var(--go);min-width:36px}
+.lb-name{flex:1;color:#c084fc;font-size:1em}
+.lb-score{color:var(--cy);font-weight:bold;font-size:.9em;text-align:right}
+.prestige-pill{padding:4px 10px;border-radius:999px;font-weight:bold;font-size:.75em;display:inline-block;margin-left:8px}
+.pp-default{background:linear-gradient(135deg,var(--p),var(--pk));color:#fff}
+.pp-bronze{background:linear-gradient(135deg,#cd7f32,#a55b2a);color:#000}
+.pp-silver{background:linear-gradient(135deg,#c0c0c0,#9ea0a5);color:#000}
+.pp-gold{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000}
+.pp-legend{background:linear-gradient(135deg,#ffd700,#ff8800);color:#000;box-shadow:0 0 12px rgba(255,200,0,.4)}
+.close-modal{margin-top:18px;padding:11px;background:rgba(239,68,68,.25);border:1px solid var(--rd);border-radius:8px;color:#fff;cursor:pointer;width:100%;font-family:inherit;font-size:.9em;transition:background .2s}
+.close-modal:hover{background:rgba(239,68,68,.4)}
+
+/* ===== TOP RESOURCE BAR ===== */
+#topBar{background:rgba(5,5,15,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:8px 14px;display:none;position:sticky;top:0;z-index:500;flex-wrap:wrap;gap:6px}
+.res-pill{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:7px;padding:5px 11px;display:flex;align-items:center;gap:6px;font-size:.78em;white-space:nowrap}
+.res-pill .res-val{color:var(--cy);font-weight:bold}
+.res-pill .res-lbl{color:var(--muted)}
+.res-pill.aps .res-val{color:#86efac}
+.res-pill.ess .res-val{color:#c084fc}
+.res-pill.cryst .res-val{color:var(--go)}
+.res-pill.frag .res-val{color:#34d399}
+.res-pill.mana .res-val{color:var(--mn)}
+.res-pill.ecl .res-val{color:var(--ec)}
+.combo-display{background:linear-gradient(135deg,rgba(123,47,247,.3),rgba(241,7,163,.3));border:1px solid rgba(123,47,247,.5);border-radius:7px;padding:5px 11px;font-size:.78em;color:#fff;font-weight:bold}
+
+/* ===== MAIN WRAPPER ===== */
+#gameWrapper{display:none;padding:14px;max-width:1500px;margin:0 auto}
+
+/* ===== TABS ===== */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tab-btn{padding:8px 15px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:7px;cursor:pointer;color:var(--muted);font-size:.82em;font-family:inherit;transition:all .2s;white-space:nowrap}
+.tab-btn:hover{background:rgba(255,255,255,.09);color:#fff}
+.tab-btn.active{background:linear-gradient(135deg,rgba(123,47,247,.4),rgba(241,7,163,.4));border-color:rgba(123,47,247,.6);color:#fff;box-shadow:0 0 12px rgba(123,47,247,.3)}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+
+/* ===== GRID ===== */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+
+/* ===== CARD ===== */
+.card{background:var(--card);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:14px;padding:16px;transition:border .25s}
+.card:hover{border-color:rgba(123,47,247,.3)}
+.card-title{font-size:1.1em;color:var(--cy);margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.card-title .badge{font-size:.7em;background:rgba(123,47,247,.3);border:1px solid rgba(123,47,247,.5);padding:2px 7px;border-radius:99px;color:var(--ec)}
+
+/* ===== STAT ROW ===== */
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:rgba(0,0,0,.2);border-radius:6px;margin-bottom:6px;font-size:.85em}
+.stat-lbl{color:var(--muted)}
+.stat-val{color:var(--cy);font-weight:bold}
+
+/* ===== BUTTONS ===== */
+button{font-family:inherit;cursor:pointer;border:none;border-radius:8px;font-weight:bold;transition:all .2s;position:relative;overflow:hidden}
+button:disabled{opacity:.3;cursor:not-allowed;transform:none!important}
+.btn{padding:9px 14px;width:100%;margin-top:7px;font-size:.87em}
+.btn-prime{background:linear-gradient(135deg,var(--p),var(--pk));color:#fff}
+.btn-prime:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 5px 18px rgba(123,47,247,.45)}
+.btn-cyan{background:linear-gradient(135deg,var(--cy),#0099cc);color:#fff}
+.btn-cyan:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,212,255,.35)}
+.btn-gold{background:linear-gradient(135deg,var(--go),#f59e0b);color:#000}
+.btn-gold:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 5px 18px rgba(251,191,36,.4)}
+.btn-green{background:linear-gradient(135deg,var(--gr),#00cc6a);color:#000}
+.btn-green:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,255,136,.35)}
+.btn-red{background:linear-gradient(135deg,var(--rd),#ff6348);color:#fff}
+.btn-red:hover:not(:disabled){transform:translateY(-2px)}
+.btn-mana{background:linear-gradient(135deg,var(--mn),#c0392b);color:#fff}
+.btn-mana:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 5px 15px rgba(255,107,53,.4)}
+.btn-eclat{background:linear-gradient(135deg,#a855f7,var(--ec));color:#000;font-weight:900}
+.btn-eclat:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 5px 18px rgba(168,85,247,.5)}
+
+/* ===== PROGRESS BAR ===== */
+.prog-bar{width:100%;height:16px;background:rgba(0,0,0,.3);border-radius:8px;overflow:hidden;margin-top:6px;border:1px solid rgba(255,255,255,.07)}
+.prog-fill{height:100%;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.7em;font-weight:bold;transition:width .4s;color:#fff}
+.prog-purple{background:linear-gradient(90deg,var(--p),var(--pk))}
+.prog-gold{background:linear-gradient(90deg,#b45309,var(--go))}
+.prog-cyan{background:linear-gradient(90deg,#0284c7,var(--cy))}
+
+/* ===== BUILDINGS ===== */
+.bld-item{background:rgba(0,0,0,.22);border:1px solid var(--border);border-radius:10px;padding:13px;margin-bottom:8px;display:flex;align-items:center;gap:12px;transition:border .2s}
+.bld-item:hover{border-color:rgba(123,47,247,.35)}
+.bld-item.affordable{border-color:rgba(0,255,136,.3)}
+.bld-emoji{font-size:1.8em;min-width:36px;text-align:center}
+.bld-info{flex:1;min-width:0}
+.bld-name{font-weight:bold;color:#e2e8f0;font-size:.93em}
+.bld-desc{color:var(--muted);font-size:.76em;margin-top:2px}
+.bld-stats{color:#86efac;font-size:.76em;margin-top:2px}
+.bld-count{font-size:1.6em;font-weight:900;color:var(--p);min-width:40px;text-align:right}
+.bld-btns{display:flex;flex-direction:column;gap:4px;min-width:90px}
+.bld-buy{padding:6px 10px;font-size:.75em;white-space:nowrap}
+
+/* ===== UPGRADES ===== */
+.upg-item{background:rgba(0,0,0,.2);border:1px solid rgba(251,191,36,.2);border-radius:8px;padding:10px;margin-bottom:6px;cursor:pointer;transition:all .2s}
+.upg-item:hover:not(.upg-owned){border-color:var(--go);background:rgba(251,191,36,.08)}
+.upg-item.upg-owned{opacity:.45;border-color:var(--border)}
+.upg-item.upg-locked{opacity:.25;pointer-events:none}
+.upg-name{color:var(--go);font-weight:bold;font-size:.87em}
+.upg-desc{color:var(--muted);font-size:.77em;margin-top:3px}
+.upg-cost{color:#fcd34d;font-size:.76em;margin-top:4px}
+
+/* ===== RESEARCH ===== */
+.res-node{background:rgba(0,0,0,.22);border:1px solid rgba(0,212,255,.2);border-radius:9px;padding:11px;margin-bottom:7px;transition:all .2s}
+.res-node:hover:not(.res-done):not(.res-locked){border-color:var(--cy);background:rgba(0,212,255,.06);cursor:pointer}
+.res-node.res-done{border-color:rgba(0,255,136,.3);background:rgba(0,255,136,.04);opacity:.6}
+.res-node.res-locked{opacity:.22;pointer-events:none}
+.res-node-title{color:var(--cy);font-weight:bold;font-size:.88em;display:flex;justify-content:space-between}
+.res-node-desc{color:var(--muted);font-size:.77em;margin-top:4px}
+.res-node-cost{color:#c084fc;font-size:.75em;margin-top:4px}
+
+/* ===== PRESTIGE ===== */
+.prestige-layer{border-radius:12px;padding:16px;margin-bottom:12px}
+.layer-1{background:rgba(123,47,247,.1);border:2px solid rgba(123,47,247,.4)}
+.layer-2{background:rgba(168,85,247,.1);border:2px solid rgba(168,85,247,.5)}
+.layer-3{background:rgba(255,215,0,.08);border:2px solid rgba(255,215,0,.4)}
+.layer-title{font-size:1.15em;font-weight:bold;margin-bottom:10px}
+.layer-1 .layer-title{color:#c084fc}
+.layer-2 .layer-title{color:var(--ec)}
+.layer-3 .layer-title{color:var(--go)}
+
+/* ===== COMBAT ===== */
+.enemy-card{background:rgba(255,71,87,.08);border:2px solid rgba(255,71,87,.35);border-radius:10px;padding:14px;margin-bottom:10px}
+.enemy-name{color:var(--rd);font-size:1.05em;font-weight:bold;margin-bottom:8px}
+.enemy-boss{color:#ff8c00;text-shadow:0 0 10px rgba(255,140,0,.6)}
+
+/* ===== DIMENSIONS ===== */
+.dim-card{background:rgba(138,43,226,.1);border:2px solid rgba(138,43,226,.3);border-radius:10px;padding:14px;margin-bottom:10px}
+.dim-locked{opacity:.4}
+
+/* ===== ARTIFACTS ===== */
+.art-item{background:linear-gradient(135deg,rgba(255,215,0,.1),rgba(255,140,0,.1));border:2px solid rgba(255,215,0,.3);padding:11px;border-radius:8px;margin-bottom:7px}
+.art-name{color:var(--go);font-weight:bold;font-size:.9em}
+
+/* ===== MANA SHOP ===== */
+.mana-item{background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.3);border-radius:8px;padding:11px;margin-bottom:7px;transition:border .2s}
+.mana-item:hover{border-color:var(--mn)}
+.mana-item-name{color:var(--mn);font-weight:bold;font-size:.88em}
+.mana-item-desc{color:var(--muted);font-size:.77em;margin-top:3px}
+
+/* ===== CHALLENGES ===== */
+.chal-item{background:rgba(255,107,107,.07);border:1px solid rgba(255,107,107,.3);border-radius:8px;padding:13px;margin-bottom:8px}
+.chal-item.chal-active{border-color:var(--gr);background:rgba(0,255,136,.06)}
+.chal-item.chal-done{border-color:rgba(0,255,136,.3);opacity:.5}
+
+/* ===== ACHIEVEMENTS ===== */
+.ach-item{background:linear-gradient(135deg,rgba(123,47,247,.15),rgba(241,7,163,.15));padding:9px 12px;margin-bottom:6px;border-radius:7px;border-left:3px solid var(--pk);font-size:.83em}
+.ach-item.ach-locked{opacity:.3;border-left-color:var(--muted)}
+
+/* ===== EVENT BANNER ===== */
+#eventBanner{margin-bottom:12px;transition:all .3s}
+.ev-banner{background:linear-gradient(135deg,#b45309,#d97706);padding:11px 16px;border-radius:10px;text-align:center;animation:pulse 2s infinite;font-size:.9em;font-weight:bold}
+@keyframes pulse{0%,100%{transform:scaleX(1)}50%{transform:scaleX(1.01)}}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:600px){
+  .bld-item{flex-wrap:wrap}.bld-btns{flex-direction:row;width:100%;min-width:unset}
+  .bld-buy{flex:1}.tabs{gap:4px}.tab-btn{font-size:.75em;padding:6px 10px}
 }
-        .error-msg {
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid #ef4444;
-            border-radius: 8px;
-            padding: 10px;
-            color: #fca5a5;
-            margin-bottom: 15px;
-            display: none;
-        }
-        
-        /* LEADERBOARD */
-        .leaderboard-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 12px 25px;
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            border: none;
-            border-radius: 10px;
-            color: #000;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 1000;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .leaderboard-btn:hover {
-            box-shadow: 0 0 20px rgba(251, 191, 36, 0.8);
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal.active { display: flex; }
-        
-        .modal-content {
-            background: rgba(26, 95, 138, 0.95);
-            border: 3px solid #c084fc;
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        .modal-title {
-            font-size: 2em;
-            color: #fbbf24;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        .leaderboard-list {
-            list-style: none;
-        }
-        
-        .leaderboard-item {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 10px;
-            border-left: 4px solid #7b2ff7;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .leaderboard-item:nth-child(1) { border-left-color: #fbbf24; }
-        .leaderboard-item:nth-child(2) { border-left-color: #c0c0c0; }
-        .leaderboard-item:nth-child(3) { border-left-color: #cd7f32; }
-        .player-prestige {
-    margin-left: 12px;
-    padding: 6px 10px;
-    border-radius: 999px;
-    font-weight: bold;
-    min-width: 110px;
-    text-align: center;
-    color: #000;
-    display:inline-block;
-}
-
-.prestige-default { background: linear-gradient(135deg, #7b2ff7, #f107a3); color: #fff; }
-.prestige-bronze  { background: linear-gradient(135deg, #cd7f32, #a55b2a); color: #000; }
-.prestige-silver  { background: linear-gradient(135deg, #c0c0c0, #9ea0a5); color: #000; }
-.prestige-gold    { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; }
-.prestige-legend  { background: linear-gradient(135deg, #ffd700, #ff8800); color: #000; box-shadow: 0 6px 20px rgba(255,200,0,0.35); }
-
-        .rank {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #fbbf24;
-            margin-right: 15px;
-        }
-        
-        .player-name {
-            flex: 1;
-            font-size: 1.2em;
-            color: #c084fc;
-        }
-        
-        .player-score {
-            font-size: 1.3em;
-            color: #00d4ff;
-            font-weight: bold;
-        }
-        
-        .close-modal {
-            margin-top: 20px;
-            padding: 12px;
-            background: rgba(239, 68, 68, 0.3);
-            border: 2px solid #ef4444;
-            border-radius: 8px;
-            color: white;
-            cursor: pointer;
-            width: 100%;
-            font-family: 'Courier New', monospace;
-            font-size: 1em;
-        }
-        
-        /* Reste du CSS du jeu... (garde tout le CSS existant) */
-        /* Je ne le répète pas ici pour gagner de la place */
-        
-    </style>
+</style>
 </head>
 <body>
-<!-- ÉCRAN DE CONNEXION -->
+
+<!-- ===== LOGIN ===== -->
 <div id="loginScreen">
-    <div class="login-box">
-        <h1 class="login-title">✨ EMPIRE DE L'AURA ✨</h1>
-
-        <div class="error-msg" id="errorMsg"></div>
-
-        <!-- FORMULAIRE DE CONNEXION -->
-        <div id="loginForm">
-            <div class="input-group">
-                <label>👤 Pseudo</label>
-                <input type="text" id="loginUsername" placeholder="3-20 caractères" maxlength="20">
-            </div>
-            <div class="input-group">
-                <label>🔒 Mot de passe</label>
-                <input type="password" id="loginPassword" placeholder="Mot de passe">
-            </div>
-            <button type="button" class="btn-login" onclick="login()">🚀 CONNEXION</button>
-            <button type="button" class="toggle-mode-btn" onclick="toggleMode()">Pas de compte ? <strong>Créer un compte</strong></button>
-        </div>
-
-        <!-- FORMULAIRE D'INSCRIPTION -->
-        <div id="registerForm" style="display: none;">
-            <div class="input-group">
-                <label>👤 Pseudo</label>
-                <input type="text" id="registerUsername" placeholder="3-20 caractères" maxlength="20">
-            </div>
-            <div class="input-group">
-                <label>🔒 Mot de passe</label>
-                <input type="password" id="registerPassword" placeholder="Minimum 6 caractères">
-            </div>
-            <div class="input-group">
-                <label>🔒 Confirmer mot de passe</label>
-                <input type="password" id="registerPasswordConfirm" placeholder="Retaper le mot de passe">
-            </div>
-            <button type="button" class="btn-login" onclick="register()">✨ CRÉER COMPTE</button>
-            <button type="button" class="toggle-mode-btn" onclick="toggleMode()">Déjà un compte ? <strong>Se connecter</strong></button>
-        </div>
+  <div class="login-box">
+    <h1 class="login-title">✨ EMPIRE DE L'AURA ✨</h1>
+    <p class="login-sub">HARDCORE EDITION — Seuls les plus persévérants survivent</p>
+    <div class="err-msg" id="errMsg"></div>
+    <div id="loginForm">
+      <div class="inp-grp"><label>👤 Pseudo</label><input type="text" id="loginUser" placeholder="3-20 caractères" maxlength="20"></div>
+      <div class="inp-grp"><label>🔒 Mot de passe</label><input type="password" id="loginPass" placeholder="Mot de passe"></div>
+      <button class="btn-auth" onclick="doLogin()">🚀 CONNEXION</button>
+      <button class="toggle-auth" onclick="toggleAuthMode()">Pas de compte ? <strong>Créer un compte</strong></button>
     </div>
+    <div id="registerForm" style="display:none">
+      <div class="inp-grp"><label>👤 Pseudo</label><input type="text" id="regUser" placeholder="3-20 caractères" maxlength="20"></div>
+      <div class="inp-grp"><label>🔒 Mot de passe</label><input type="password" id="regPass" placeholder="Min 6 caractères"></div>
+      <div class="inp-grp"><label>🔒 Confirmer</label><input type="password" id="regPass2" placeholder="Retaper le mot de passe"></div>
+      <button class="btn-auth" onclick="doRegister()">✨ CRÉER COMPTE</button>
+      <button class="toggle-auth" onclick="toggleAuthMode()">Déjà un compte ? <strong>Se connecter</strong></button>
+    </div>
+  </div>
 </div>
 
+<!-- ===== LEADERBOARD ===== -->
+<button class="lb-btn" id="lbBtn" onclick="showLB()">🏆 Classement</button>
+<div class="modal" id="lbModal">
+  <div class="modal-box">
+    <h2 class="modal-title">🏆 CLASSEMENT MONDIAL 🏆</h2>
+    <ul class="lb-list" id="lbList"></ul>
+    <button class="close-modal" onclick="closeLB()">Fermer</button>
+  </div>
+</div>
 
-    
-    <!-- BOUTON CLASSEMENT -->
-    <button class="leaderboard-btn" id="leaderboardBtn" style="display: none;" onclick="showLeaderboard()">
-        🏆 Classement
-    </button>
-    
-    <!-- MODAL CLASSEMENT -->
-    <div class="modal" id="leaderboardModal">
-        <div class="modal-content">
-            <h2 class="modal-title">🏆 CLASSEMENT MONDIAL 🏆</h2>
-            <ul class="leaderboard-list" id="leaderboardList"></ul>
-            <button class="close-modal" onclick="closeLeaderboard()">Fermer</button>
-        </div>
+<!-- ===== TOP RESOURCE BAR ===== -->
+<div id="topBar">
+  <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+    <div class="res-pill"><span class="res-lbl">✨Aura</span><span class="res-val" id="tb-aura">0</span></div>
+    <div class="res-pill aps"><span class="res-lbl">⚡/sec</span><span class="res-val" id="tb-aps">0</span></div>
+    <div class="res-pill ess"><span class="res-lbl">💠Ess</span><span class="res-val" id="tb-ess">0</span></div>
+    <div class="res-pill cryst"><span class="res-lbl">💎Cryst</span><span class="res-val" id="tb-cryst">0</span></div>
+    <div class="res-pill frag"><span class="res-lbl">🔮Frag</span><span class="res-val" id="tb-frag">0</span></div>
+    <div class="res-pill mana" id="tb-mana-pill" style="display:none"><span class="res-lbl">🔥Mana</span><span class="res-val" id="tb-mana">0</span></div>
+    <div class="res-pill ecl" id="tb-ecl-pill" style="display:none"><span class="res-lbl">🌠Éclats</span><span class="res-val" id="tb-ecl">0</span></div>
+    <div class="combo-display" id="tb-combo" style="display:none">COMBO ×<span id="tb-combo-val">1</span></div>
+    <div style="margin-left:auto;display:flex;gap:6px">
+      <button class="btn-auth" style="padding:6px 12px;font-size:.75em;margin-top:0;width:auto" onclick="spinDailyWheel()">🎡 Roue</button>
+      <button class="btn-auth" style="padding:6px 12px;font-size:.75em;margin-top:0;width:auto;background:linear-gradient(135deg,#374151,#1f2937)" onclick="doLogout()">Quitter</button>
     </div>
-    
-    <!-- JEU (tout le HTML du jeu existant) -->
-    <!-- Garde exactement le même HTML du jeu -->
-<script>
-function notify(msg) {
-    console.log(msg);
-}
+  </div>
+</div>
 
-// ========== CONFIGURATION SUPABASE ==========
+<!-- ===== GAME WRAPPER ===== -->
+<div id="gameWrapper">
+  <div id="eventBanner"></div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('main',this)">🏠 Principal</button>
+    <button class="tab-btn" onclick="switchTab('buildings',this)">🏗️ Bâtiments</button>
+    <button class="tab-btn" onclick="switchTab('upgrades',this)">⬆️ Améliorations</button>
+    <button class="tab-btn" onclick="switchTab('research',this)">🔬 Recherche</button>
+    <button class="tab-btn" onclick="switchTab('combat',this)">⚔️ Combat</button>
+    <button class="tab-btn" onclick="switchTab('dimensions',this)">🌍 Dimensions</button>
+    <button class="tab-btn" onclick="switchTab('artifacts',this)">💎 Artefacts</button>
+    <button class="tab-btn" onclick="switchTab('prestige',this)">🌟 Prestige</button>
+    <button class="tab-btn" onclick="switchTab('mana',this)">🔥 Mana Noire</button>
+    <button class="tab-btn" onclick="switchTab('challenges',this)">🎯 Défis</button>
+    <button class="tab-btn" onclick="switchTab('stats',this)">📊 Stats</button>
+    <button class="tab-btn" onclick="switchTab('achievements',this)">🏆 Succès</button>
+  </div>
+
+  <!-- PRINCIPAL -->
+  <div id="tab-main" class="tab-pane active">
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">💫 Ressources</div>
+        <div class="stat-row"><span class="stat-lbl">Aura actuelle</span><span class="stat-val" id="m-aura">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Aura/sec</span><span class="stat-val" id="m-aps">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Multiplicateur global</span><span class="stat-val" id="m-mult">×1.00</span></div>
+        <div class="stat-row"><span class="stat-lbl">Puissance de clic</span><span class="stat-val" id="m-clic">1</span></div>
+        <div class="stat-row"><span class="stat-lbl">Essence</span><span class="stat-val" id="m-ess">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Cristaux</span><span class="stat-val" id="m-cryst">0</span></div>
+        <button class="btn btn-prime" onclick="clickAura()" id="btn-collect">✨ Récolter l'Aura</button>
+        <button class="btn btn-cyan" onclick="convertEssence()" id="btn-convert" disabled>💠 Convertir en Essence (<span id="conv-cost">5000</span> Aura)</button>
+      </div>
+      <div class="card">
+        <div class="card-title">🌟 Prestige <span class="badge" id="prestige-count-badge">×0</span></div>
+        <div id="prestige-info-box">
+          <div class="stat-row"><span class="stat-lbl">Aura requise</span><span class="stat-val" id="m-pres-req">—</span></div>
+          <div class="stat-row"><span class="stat-lbl">Cristaux à gagner</span><span class="stat-val" id="m-pres-gain">—</span></div>
+          <div class="stat-row"><span class="stat-lbl">Bonus cristaux actuel</span><span class="stat-val" id="m-cryst-bonus">+0%</span></div>
+          <div class="prog-bar"><div class="prog-fill prog-purple" id="prog-prestige" style="width:0%">0%</div></div>
+        </div>
+        <button class="btn btn-gold" onclick="doPrestige()" id="btn-prestige" disabled>⭐ PRESTIGE (reset tout)</button>
+        <div id="ascension-box" style="margin-top:10px;display:none">
+          <div style="border-top:1px solid var(--border);padding-top:10px">
+            <div class="stat-row"><span class="stat-lbl">Cristaux requis (Ascension)</span><span class="stat-val" id="m-asc-req">—</span></div>
+            <div class="stat-row"><span class="stat-lbl">Prestiges requis</span><span class="stat-val" id="m-asc-pres-req">—</span></div>
+            <button class="btn btn-eclat" onclick="doAscension()" id="btn-ascension" disabled>🌠 ASCENSION (reset cristaux)</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 Production</div>
+        <div class="stat-row"><span class="stat-lbl">Collecteurs</span><span class="stat-val" id="m-col">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Amplificateurs</span><span class="stat-val" id="m-amp">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Résonateurs</span><span class="stat-val" id="m-res">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Singularités</span><span class="stat-val" id="m-sing">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Nexus Cosmiques</span><span class="stat-val" id="m-nex">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Portails du Vide</span><span class="stat-val" id="m-por">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Étoiles Noires</span><span class="stat-val" id="m-etn">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Fracteurs</span><span class="stat-val" id="m-frac">0</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">⚡ Statut Actuel</div>
+        <div class="stat-row"><span class="stat-lbl">Prestige #</span><span class="stat-val" id="m-npres">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Ascensions</span><span class="stat-val" id="m-nasc">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Transcendances</span><span class="stat-val" id="m-ntrans">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Victoires combat</span><span class="stat-val" id="m-vic">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Boss vaincus</span><span class="stat-val" id="m-boss">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Éclats de Réalité</span><span class="stat-val" id="m-ecl">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Noyaux Cosmiques</span><span class="stat-val" id="m-noy">0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BÂTIMENTS -->
+  <div id="tab-buildings" class="tab-pane">
+    <div class="grid2">
+      <div class="card" style="grid-column:1/-1">
+        <div class="card-title">🏗️ Bâtiments — Achetez en masse pour décupler votre production</div>
+        <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+          <button class="btn-auth" style="padding:6px 12px;font-size:.75em;width:auto;margin-top:0" onclick="setBulk(1)">×1</button>
+          <button class="btn-auth" style="padding:6px 12px;font-size:.75em;width:auto;margin-top:0" onclick="setBulk(10)">×10</button>
+          <button class="btn-auth" style="padding:6px 12px;font-size:.75em;width:auto;margin-top:0" onclick="setBulk(100)">×100</button>
+          <button class="btn-auth" style="padding:6px 12px;font-size:.75em;width:auto;margin-top:0" onclick="setBulk('max')">MAX</button>
+          <span style="color:var(--muted);font-size:.8em;align-self:center;margin-left:6px">Achat en cours: <strong id="bulk-lbl" style="color:var(--cy)">×1</strong></span>
+        </div>
+        <div id="buildings-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AMÉLIORATIONS -->
+  <div id="tab-upgrades" class="tab-pane">
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">⬆️ Améliorations disponibles</div>
+        <div id="upgrades-available"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">✅ Améliorations achetées</div>
+        <div id="upgrades-owned"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECHERCHE -->
+  <div id="tab-research" class="tab-pane">
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">🔬 Arbre de Recherche</div>
+        <p style="color:var(--muted);font-size:.8em;margin-bottom:10px">La Recherche coûte de l'<strong style="color:#c084fc">Essence</strong> et se réinitialise à chaque Prestige. Planifiez bien!</p>
+        <div id="research-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📖 Recherches actives</div>
+        <div id="research-active"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMBAT -->
+  <div id="tab-combat" class="tab-pane">
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">⚔️ Statistiques</div>
+        <div class="stat-row"><span class="stat-lbl">Puissance d'attaque</span><span class="stat-val" id="c-atk">1</span></div>
+        <div class="stat-row"><span class="stat-lbl">Défense</span><span class="stat-val" id="c-def">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Dégâts par frappe</span><span class="stat-val" id="c-dmg">1</span></div>
+        <div class="stat-row"><span class="stat-lbl">Victoires</span><span class="stat-val" id="c-vic">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Prochain boss dans</span><span class="stat-val" id="c-boss-in">10</span></div>
+        <button class="btn btn-red" onclick="findEnemy()">👹 Trouver un ennemi</button>
+      </div>
+      <div class="card">
+        <div class="card-title">👹 Ennemi actuel</div>
+        <div id="enemy-box"><div style="color:var(--muted);text-align:center;padding:30px">Aucun ennemi actif</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🛡️ Équipement</div>
+        <div id="equipment-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIMENSIONS -->
+  <div id="tab-dimensions" class="tab-pane">
+    <div class="grid2">
+      <div id="dim-list"></div>
+    </div>
+  </div>
+
+  <!-- ARTEFACTS -->
+  <div id="tab-artifacts" class="tab-pane">
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">💎 Chercher des Artefacts</div>
+        <div class="stat-row"><span class="stat-lbl">Fragments cosmiques</span><span class="stat-val" id="art-frag">0</span></div>
+        <p style="color:var(--muted);font-size:.8em;margin:8px 0">Les artefacts survivent au Prestige! Ils donnent des bonus permanents.</p>
+        <button class="btn btn-gold" onclick="searchArtifact()">🔍 Chercher (100 Fragments)</button>
+        <button class="btn btn-cyan" onclick="searchArtifact(true)" id="rare-search-btn" disabled>💫 Recherche Rare (500 Frag + 10 Boss)</button>
+      </div>
+      <div class="card">
+        <div class="card-title">🗃️ Collection</div>
+        <div id="artifact-list"><div style="color:var(--muted);font-size:.85em">Aucun artefact trouvé. Battez des ennemis!</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRESTIGE -->
+  <div id="tab-prestige" class="tab-pane">
+    <div class="grid2">
+      <div class="prestige-layer layer-1">
+        <div class="layer-title">⭐ PRESTIGE — Couche 1</div>
+        <p style="color:var(--muted);font-size:.83em;margin-bottom:10px">Réinitialisez tout pour gagner des <strong style="color:var(--go)">Cristaux de Puissance</strong>. Chaque prestige rend le suivant plus dur mais vous donnez un bonus de production permanent.</p>
+        <div class="stat-row"><span class="stat-lbl">Prestige actuel #</span><span class="stat-val" id="p1-count">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Aura requise</span><span class="stat-val" id="p1-req">10 M</span></div>
+        <div class="stat-row"><span class="stat-lbl">Cristaux à gagner</span><span class="stat-val" id="p1-gain">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Cristaux total</span><span class="stat-val" id="p1-cryst">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Mult. Cristaux actuel</span><span class="stat-val" id="p1-mult">×1.00</span></div>
+        <div class="prog-bar"><div class="prog-fill prog-purple" id="prog-p1" style="width:0%">0%</div></div>
+        <button class="btn btn-gold" onclick="doPrestige()" id="btn-p1" disabled style="margin-top:10px">⭐ PRESTIGE — Reset tout sauf Cristaux, Artefacts, Mana</button>
+        <p style="color:var(--rd);font-size:.75em;margin-top:8px">⚠️ Réinitialise: Aura, Essence, Bâtiments, Recherche, Dimensions, Combat</p>
+      </div>
+      <div class="prestige-layer layer-2">
+        <div class="layer-title">🌠 ASCENSION — Couche 2</div>
+        <p style="color:var(--muted);font-size:.83em;margin-bottom:10px">Sacrifiez tous vos Cristaux pour obtenir des <strong style="color:var(--ec)">Éclats de Réalité</strong>. Chaque Éclat donne +20% de production <em>permanente</em> à travers les prestiges.</p>
+        <div class="stat-row"><span class="stat-lbl">Ascensions effectuées</span><span class="stat-val" id="p2-count">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Cristaux requis</span><span class="stat-val" id="p2-cryst-req">500</span></div>
+        <div class="stat-row"><span class="stat-lbl">Prestiges requis (total)</span><span class="stat-val" id="p2-pres-req">20</span></div>
+        <div class="stat-row"><span class="stat-lbl">Éclats à gagner</span><span class="stat-val" id="p2-gain">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Éclats total</span><span class="stat-val" id="p2-ecl">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Bonus Éclats actuel</span><span class="stat-val" id="p2-bonus">+0%</span></div>
+        <button class="btn btn-eclat" onclick="doAscension()" id="btn-p2" disabled style="margin-top:10px">🌠 ASCENSION — Sacrifier les Cristaux</button>
+        <p style="color:var(--rd);font-size:.75em;margin-top:8px">⚠️ Réinitialise aussi: Cristaux (les Éclats et Artefacts survivent)</p>
+      </div>
+      <div class="prestige-layer layer-3">
+        <div class="layer-title">💫 TRANSCENDANCE — Couche 3</div>
+        <p style="color:var(--muted);font-size:.83em;margin-bottom:10px">L'ultime sacrifice. Sacrifiez les Éclats de Réalité pour des <strong style="color:var(--go)">Noyaux Cosmiques</strong>. Le jeu en lui-même change.</p>
+        <div class="stat-row"><span class="stat-lbl">Transcendances</span><span class="stat-val" id="p3-count">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Éclats requis</span><span class="stat-val" id="p3-ecl-req">50</span></div>
+        <div class="stat-row"><span class="stat-lbl">Ascensions requises</span><span class="stat-val" id="p3-asc-req">5</span></div>
+        <div class="stat-row"><span class="stat-lbl">Noyaux total</span><span class="stat-val" id="p3-noy">0</span></div>
+        <button class="btn btn-gold" onclick="doTranscendance()" id="btn-p3" disabled style="margin-top:10px">💫 TRANSCENDANCE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANA NOIRE -->
+  <div id="tab-mana" class="tab-pane">
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">🔥 Boutique de la Mana Noire</div>
+        <p style="color:var(--muted);font-size:.8em;margin-bottom:10px">La Mana Noire est générée par les <strong style="color:var(--mn)">Étoiles Noires</strong>. Elle <em>survit aux Prestiges et Ascensions</em>! Dépensez-la pour des bonus permanents.</p>
+        <div class="stat-row"><span class="stat-lbl">Mana Noire</span><span class="stat-val" id="mana-amount">0</span></div>
+        <div class="stat-row"><span class="stat-lbl">Mana/sec</span><span class="stat-val" id="mana-rate">0</span></div>
+        <div id="mana-shop"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 Bonus actifs (permanents)</div>
+        <div id="mana-active"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DÉFIS -->
+  <div id="tab-challenges" class="tab-pane">
+    <div class="card">
+      <div class="card-title">🎯 Défis Extrêmes</div>
+      <p style="color:var(--muted);font-size:.8em;margin-bottom:12px">Les défis imposent des restrictions sévères mais offrent des récompenses permanentes.</p>
+      <div id="challenges-list"></div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div id="tab-stats" class="tab-pane">
+    <div class="card">
+      <div class="card-title">📊 Statistiques</div>
+      <div class="grid3" id="stats-grid"></div>
+      <div style="margin-top:14px">
+        <div style="color:var(--cy);font-size:.9em;margin-bottom:8px">📈 Production (30 dernières secondes)</div>
+        <canvas id="prod-chart" width="800" height="120" style="width:100%;border-radius:6px;background:rgba(0,0,0,.3)"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCÈS -->
+  <div id="tab-achievements" class="tab-pane">
+    <div class="card">
+      <div class="card-title">🏆 Succès</div>
+      <div id="ach-list"></div>
+    </div>
+  </div>
+</div>
+
+<div id="notifContainer"></div>
+
+<script>
+// =========================================================
+// SUPABASE CONFIG
+// =========================================================
 const SUPABASE_URL = 'https://uvokzzjgbcyuvheppynm.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV2b2t6empnYmN5dXZoZXBweW5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2NjM4MDIsImV4cCI6MjA4NDIzOTgwMn0.HU2fWuYugDi9dP3lx3xg9Wmxq4xAN9nDYgdEm-YcRPU';
+const sbClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    
-
-let isLoginMode = true;
 let userToken = localStorage.getItem('authToken') || null;
 let currentUsername = localStorage.getItem('username') || null;
+let isLoginMode = true;
 
-// ========== AUTHENTIFICATION ==========
-function toggleMode() {
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-
-    isLoginMode = !isLoginMode;
-
-    if (isLoginMode) {
-        loginForm.style.display = 'block';
-        registerForm.style.display = 'none';
-    } else {
-        loginForm.style.display = 'none';
-        registerForm.style.display = 'block';
-    }
-
-    hideError();
-}
-
-function showError(msg) {
-    const errorEl = document.getElementById('errorMsg');
-    errorEl.textContent = msg;
-    errorEl.style.display = 'block';
-}
-
-function hideError() {
-    document.getElementById('errorMsg').style.display = 'none';
-}
-
-async function register() {
-    const username = document.getElementById('registerUsername').value.trim();
-    const password = document.getElementById('registerPassword').value;
-    const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
-    
-    hideError();
-    
-    if (username.length < 3 || username.length > 20) {
-        showError('Le pseudo doit faire entre 3 et 20 caractères');
-        return;
-    }
-    
-    if (password.length < 6) {
-        showError('Le mot de passe doit faire au moins 6 caractères');
-        return;
-    }
-    
-    if (password !== passwordConfirm) {
-        showError('Les mots de passe ne correspondent pas');
-        return;
-    }
-    
-    try {
-        const { data, error } = await client.rpc('create_user', {
-            p_username: username,
-            p_password: password
-        });
-        
-        if (error) throw error;
-        
-        if (data[0].success) {
-            userToken = data[0].token;
-            currentUsername = username;
-            localStorage.setItem('authToken', userToken);
-            localStorage.setItem('username', currentUsername);
-            
-            startGame();
-        } else {
-            showError(data[0].message);
-        }
-    } catch (err) {
-        showError('Erreur de connexion au serveur');
-        console.error(err);
-    }
-}
-
-async function login() {
-    const username = document.getElementById('loginUsername').value.trim();
-    const password = document.getElementById('loginPassword').value;
-    
-    hideError();
-    
-    if (!username || !password) {
-        showError('Veuillez remplir tous les champs');
-        return;
-    }
-    
-    try {
-        const { data, error } = await client.rpc('login_user', {
-            p_username: username,
-            p_password: password
-        });
-        
-        if (error) throw error;
-        
-        if (data[0].success) {
-            userToken = data[0].token;
-            currentUsername = username;
-            localStorage.setItem('authToken', userToken);
-            localStorage.setItem('username', currentUsername);
-            
-            await loadGameFromServer();
-            startGame();
-        } else {
-            showError(data[0].message);
-        }
-    } catch (err) {
-        showError('Erreur de connexion au serveur');
-        console.error(err);
-    }
-}
-
-function logout() {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('username');
-    userToken = null;
-    currentUsername = null;
-    
-    document.getElementById('loginScreen').classList.remove('hidden');
-    document.getElementById('leaderboardBtn').style.display = 'none';
-    
-    location.reload();
-}
-
-function startGame() {
-    document.getElementById('loginScreen').classList.add('hidden');
-    document.getElementById('leaderboardBtn').style.display = 'block';
-    
-    notify(`Bienvenue ${currentUsername} !`);
-    
-    setInterval(saveGameToServer, 30000);
-}
-
-async function checkExistingSession() {
-    const token = localStorage.getItem('authToken');
-    if (!token) return; // Pas de session existante
-
-    try {
-        // Vérifie avec la fonction SQL verify_token si le token est valide
-        const { data, error } = await client.rpc('verify_token', { p_token: token });
-        if (error || !data) {
-            logout(); // token invalide → déconnexion
-            return;
-        }
-
-        userToken = token;
-        currentUsername = localStorage.getItem('username');
-        await loadGameFromServer();
-        startGame();
-    } catch (err) {
-        console.error('Session invalide:', err);
-        logout();
-    }
-}
-
-
-// ========== SAUVEGARDE ==========
-async function saveGameToServer() {
-    if (!userToken) return;
-    
-    try {
-        const { data, error } = await client.rpc('save_game', {
-            p_token: userToken,
-            p_game_data: game,
-            p_total_aura: Math.floor(game.totalAura),
-            p_prestige_level: game.stats.totalPrestiges,
-            p_crystals: game.crystals
-        });
-        
-        if (error) throw error;
-        
-        console.log('✅ Jeu sauvegardé sur le serveur');
-    } catch (err) {
-        console.error('❌ Erreur de sauvegarde:', err);
-        if (err.message.includes('token')) {
-            logout();
-        }
-    }
-}
-
-async function loadGameFromServer() {
-    if (!userToken) return;
-    
-    try {
-        const { data, error } = await client.rpc('load_game', {
-            p_token: userToken
-        });
-        
-        if (error) throw error;
-        
-        if (data && data.length > 0 && data[0].game_data) {
-            const savedData = data[0].game_data;
-            if (Object.keys(savedData).length > 0) {
-                Object.assign(game, savedData);
-                updateDisplay();
-                notify('💾 Partie chargée !');
-            }
-        }
-    } catch (err) {
-        console.error('❌ Erreur de chargement:', err);
-    }
-}
-
-// ========== CLASSEMENT ==========
-async function showLeaderboard() {
-    try {
-        const { data, error } = await client
-            .from('leaderboard')
-            .select('*')
-            .limit(50);
-        
-        if (error) throw error;
-        
-        
-    
-        
-        const list = document.getElementById('leaderboardList');
-        list.innerHTML = '';
-        
-data.forEach((player, index) => {
-    const prestigeRaw = player.prestige_level ?? player.prestuge_level ?? player.prestiges ?? player.prestige ?? 0;
-    const prestigeClass = getPrestigeClass(prestigeRaw);
-    const prestigeText = `${formatNumber(prestigeRaw)} Prestige`;
-
-    const li = document.createElement('li');
-    li.className = 'leaderboard-item';
-    li.innerHTML = `
-        <div style="display:flex; align-items:center; gap:12px; flex:1;">
-            <span class="rank">#${index + 1}</span>
-            <span class="player-name">${escapeHtml(player.username ?? '—')}</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:8px;">
-            <span class="player-prestige ${prestigeClass}">${escapeHtml(prestigeText)}</span>
-            <span class="player-score">${formatNumber(player.total_aura ?? player.totalAura ?? 0)} Aura</span>
-        </div>
-    `;
-    list.appendChild(li);
-});
-
-        
-        document.getElementById('leaderboardModal').classList.add('active');
-    } catch (err) {
-        console.error('Erreur chargement classement:', err);
-        notify('❌ Erreur de chargement du classement');
-    }
-}
-
-function closeLeaderboard() {
-    document.getElementById('leaderboardModal').classList.remove('active');
-}
-
-function formatNumber(n) {
-    if (n >= 1e12) return (n / 1e12).toFixed(2) + 'T';
-    if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
-    if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
-    if (n >= 1e3) return (n / 1e3).toFixed(2) + 'k';
-    return Math.floor(n).toLocaleString();
-}
-</script>
-        // ========== TOUT LE CODE DU JEU EXISTANT ==========
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Empire de l'Aura - Ultimate</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            min-height: 100vh;
-            color: #fff;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        h1 {
-            font-size: 2.5em;
-            background: linear-gradient(45deg, #00d4ff, #7b2ff7, #f107a3);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            color: #a0a0a0;
-            font-size: 0.9em;
-        }
-        
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, #7b2ff7, #f107a3);
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(123, 47, 247, 0.5);
-            animation: slideIn 0.5s;
-            z-index: 1000;
-            max-width: 300px;
-        }
-        
-        @keyframes slideIn {
-            from { transform: translateX(400px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 15px;
-            transition: all 0.3s;
-        }
-        
-        .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(123, 47, 247, 0.3);
-        }
-        
-        .card-title {
-            font-size: 1.3em;
-            margin-bottom: 12px;
-            color: #00d4ff;
-        }
-        
-        .stat {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            padding: 8px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 6px;
-            font-size: 0.9em;
-        }
-        
-        .stat-label {
-            color: #a0a0a0;
-        }
-        
-        .stat-value {
-            color: #00d4ff;
-            font-weight: bold;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 20px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #7b2ff7, #f107a3);
-            transition: width 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-        
-        button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 8px;
-            font-size: 0.9em;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(123, 47, 247, 0.4);
-        }
-        
-        button:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #7b2ff7, #f107a3);
-            color: white;
-        }
-        
-        .btn-secondary {
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            color: white;
-        }
-        
-        .btn-success {
-            background: linear-gradient(135deg, #00ff88, #00cc6a);
-            color: white;
-        }
-        
-        .btn-danger {
-            background: linear-gradient(135deg, #ff4757, #ff6348);
-            color: white;
-        }
-        
-        .btn-warning {
-            background: linear-gradient(135deg, #ffa502, #ff6348);
-            color: white;
-        }
-        
-        .upgrade-list {
-            max-height: 350px;
-            overflow-y: auto;
-        }
-        
-        .upgrade-item {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 12px;
-            margin-bottom: 8px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .upgrade-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-        
-        .upgrade-name {
-            font-weight: bold;
-            color: #00d4ff;
-            font-size: 0.95em;
-        }
-        
-        .upgrade-level {
-            color: #f107a3;
-            font-size: 0.9em;
-        }
-        
-        .upgrade-desc {
-            color: #a0a0a0;
-            font-size: 0.85em;
-            margin-bottom: 8px;
-        }
-        
-        .upgrade-cost {
-            color: #ffaa00;
-            font-size: 0.85em;
-        }
-        
-        .achievement {
-            background: linear-gradient(135deg, rgba(123, 47, 247, 0.2), rgba(241, 7, 163, 0.2));
-            padding: 8px;
-            margin-bottom: 6px;
-            border-radius: 6px;
-            border-left: 3px solid #f107a3;
-            font-size: 0.85em;
-        }
-        
-        .achievement.locked {
-            opacity: 0.4;
-        }
-        
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .tab {
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9em;
-        }
-        
-        .tab.active {
-            background: linear-gradient(135deg, #7b2ff7, #f107a3);
-            border-color: #f107a3;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #7b2ff7, #f107a3);
-            border-radius: 10px;
-        }
-        
-        .event-banner {
-            background: linear-gradient(135deg, #ff6b6b, #feca57);
-            padding: 12px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            text-align: center;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-        }
-        
-        .enemy {
-            background: rgba(255, 0, 0, 0.1);
-            border: 2px solid #ff4757;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .enemy-name {
-            font-size: 1.2em;
-            color: #ff4757;
-            margin-bottom: 10px;
-        }
-        
-        .artifact {
-            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2));
-            border: 2px solid #ffd700;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-        }
-        
-        .artifact-name {
-            color: #ffd700;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .dimension-card {
-            background: linear-gradient(135deg, rgba(138, 43, 226, 0.2), rgba(75, 0, 130, 0.2));
-            border: 2px solid #8a2be2;
-        }
-        
-        .challenge-item {
-            background: rgba(255, 107, 107, 0.1);
-            border: 1px solid #ff6b6b;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-        
-        .challenge-active {
-            border-color: #00ff88;
-            background: rgba(0, 255, 136, 0.1);
-        }
-        
-        .bot-item {
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid #00d4ff;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-        }
-        
-        .chart-container {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 10px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>✨ Empire de l'Aura - Ultimate Edition ✨</h1>
-            <p class="subtitle">Dominez le multivers et ascendez vers l'infini</p>
-        </header>
-        
-        <div id="eventBanner"></div>
-        <div id="notifications"></div>
-        
-        <div class="tabs">
-            <div class="tab active" onclick="switchTab('main')">Principal</div>
-            <div class="tab" onclick="switchTab('upgrades')">Améliorations</div>
-            <div class="tab" onclick="switchTab('combat')">⚔️ Combat</div>
-            <div class="tab" onclick="switchTab('dimensions')">🌍 Dimensions</div>
-            <div class="tab" onclick="switchTab('artifacts')">💎 Artefacts</div>
-            <div class="tab" onclick="switchTab('automation')">🏭 Automatisation</div>
-            <div class="tab" onclick="switchTab('challenges')">🎯 Défis</div>
-            <div class="tab" onclick="switchTab('stats')">📊 Stats</div>
-            <div class="tab" onclick="switchTab('achievements')">🏆 Succès</div>
-            <button onclick="spinDailyWheel()">🎡 Tourner la roue quotidienne</button>
-
-        </div>
-        
-        <div id="main" class="tab-content active">
-            <div class="grid">
-                <div class="card">
-                    <h2 class="card-title">💫 Ressources</h2>
-                    <div class="stat">
-                        <span class="stat-label">Aura:</span>
-                        <span class="stat-value" id="aura">0</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">Aura/sec:</span>
-                        <span class="stat-value" id="auraRate">0</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">Essence:</span>
-                        <span class="stat-value" id="essence">0</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">Cristaux:</span>
-                        <span class="stat-value" id="crystals">0</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">Fragments cosmiques:</span>
-                        <span class="stat-value" id="fragments">0</span>
-                    </div>
-                    <button class="btn-primary" onclick="collectAura()">Récolter l'Aura</button>
-                    <button class="btn-secondary" onclick="convertToEssence()" id="convertBtn" disabled>
-                        Convertir en Essence (1000 Aura)
-                    </button>
-                </div>
-                
-                <div class="card">
-                    <h2 class="card-title">⚡ Production</h2>
-                    <div class="stat">
-                        <span class="stat-label">Collecteurs:</span>
-                        <span class="stat-value" id="collectors">0</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">Amplificateurs:</span>
-                        <span class="stat-value" id="amplifiers">0</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">Résonateurs:</span>
-                        <span class="stat-value" id="resonators">0</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">Multiplicateur total:</span>
-                        <span class="stat-value" id="multiplier">×1.0</span>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <h2 class="card-title">🌟 Prestige</h2>
-                    <div class="upgrade-desc">
-                        Réinitialisez pour obtenir des Cristaux de puissance !
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">Cristaux gagnés:</span>
-                        <span class="stat-value" id="prestigeGain">0</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">Bonus cristaux:</span>
-                        <span class="stat-value" id="crystalBonus">+0%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="prestigeProgress" style="width: 0%">0%</div>
-                    </div>
-                    <button class="btn-success" onclick="prestige()" id="prestigeBtn" disabled>
-                        Ascension (1M Aura)
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <div id="upgrades" class="tab-content">
-            <div class="grid">
-                <div class="card">
-                    <h2 class="card-title">🔧 Générateurs</h2>
-                    <div class="upgrade-list">
-                        <div class="upgrade-item">
-                            <div class="upgrade-header">
-                                <span class="upgrade-name">Collecteur</span>
-                                <span class="upgrade-level">Niv. <span id="collectorLevel">0</span></span>
-                            </div>
-                            <div class="upgrade-desc">+1 Aura/sec</div>
-                            <div class="upgrade-cost">Coût: <span id="collectorCost">10</span> Aura</div>
-                            <button class="btn-primary" onclick="buyCollector()">Acheter</button>
-                        </div>
-                        
-                        <div class="upgrade-item">
-                            <div class="upgrade-header">
-                                <span class="upgrade-name">Amplificateur</span>
-                                <span class="upgrade-level">Niv. <span id="amplifierLevel">0</span></span>
-                            </div>
-                            <div class="upgrade-desc">+10 Aura/sec</div>
-                            <div class="upgrade-cost">Coût: <span id="amplifierCost">100</span> Aura</div>
-                            <button class="btn-primary" onclick="buyAmplifier()">Acheter</button>
-                        </div>
-                        
-                        <div class="upgrade-item">
-                            <div class="upgrade-header">
-                                <span class="upgrade-name">Résonateur</span>
-                                <span class="upgrade-level">Niv. <span id="resonatorLevel">0</span></span>
-                            </div>
-                            <div class="upgrade-desc">+100 Aura/sec</div>
-                            <div class="upgrade-cost">Coût: <span id="resonatorCost">5</span> Essence</div>
-                            <button class="btn-secondary" onclick="buyResonator()">Acheter</button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card">
-                    <h2 class="card-title">⚙️ Améliorations</h2>
-                    <div class="upgrade-list">
-                        <div class="upgrade-item">
-                            <div class="upgrade-header">
-                                <span class="upgrade-name">Clics puissants</span>
-                                <span class="upgrade-level">Niv. <span id="clickLevel">0</span></span>
-                            </div>
-                            <div class="upgrade-desc">+1 Aura par clic</div>
-                            <div class="upgrade-cost">Coût: <span id="clickCost">50</span> Aura</div>
-                            <button class="btn-primary" onclick="buyClickPower()">Acheter</button>
-                        </div>
-                        
-                        <div class="upgrade-item">
-                            <div class="upgrade-header">
-                                <span class="upgrade-name">Efficacité</span>
-                                <span class="upgrade-level">Niv. <span id="efficiencyLevel">0</span></span>
-                            </div>
-                            <div class="upgrade-desc">×1.5 production</div>
-                            <div class="upgrade-cost">Coût: <span id="efficiencyCost">2</span> Essence</div>
-                            <button class="btn-secondary" onclick="buyEfficiency()">Acheter</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div id="combat" class="tab-content">
-            <div class="grid">
-                <div class="card">
-                    <h2 class="card-title">⚔️ Combat</h2>
-                    <div class="stat">
-                        <span class="stat-label">Puissance d'attaque:</span>
-                        <span class="stat-value" id="attackPower">1</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">Défense:</span>
-                        <span class="stat-value" id="defense">0</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">Victoires:</span>
-                        <span class="stat-value" id="victories">0</span>
-                    </div>
-                    <button class="btn-danger" onclick="findEnemy()">Chercher un ennemi</button>
-                </div>
-                
-                <div class="card">
-                    <h2 class="card-title">👹 Ennemi actuel</h2>
-                    <div id="enemyInfo">Aucun ennemi</div>
-                </div>
-                
-                <div class="card">
-                    <h2 class="card-title">🛡️ Équipement</h2>
-                    <div class="upgrade-list">
-                        <div class="upgrade-item">
-                            <div class="upgrade-name">Épée cosmique</div>
-                            <div class="upgrade-desc">+5 Attaque</div>
-                            <div class="upgrade-cost">Coût: 10 Essence</div>
-                            <button class="btn-secondary" onclick="buyWeapon()" id="weaponBtn">Acheter</button>
-                        </div>
-                        <div class="upgrade-item">
-                            <div class="upgrade-name">Armure énergétique</div>
-                            <div class="upgrade-desc">+3 Défense</div>
-                            <div class="upgrade-cost">Coût: 10 Essence</div>
-                            <button class="btn-secondary" onclick="buyArmor()" id="armorBtn">Acheter</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div id="dimensions" class="tab-content">
-            <div class="grid">
-                <div class="card dimension-card">
-                    <h2 class="card-title">🌍 Dimension Éthérée</h2>
-                    <div class="upgrade-desc">Première dimension alternative</div>
-                    <div class="stat">
-                        <span class="stat-label">Éther:</span>
-                        <span class="stat-value" id="ether">0</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">Générateurs:</span>
-                        <span class="stat-value" id="etherGens">0</span>
-                    </div>
-                    <button class="btn-warning" onclick="unlockDimension(1)" id="dim1Btn">Débloquer (50 Cristaux)</button>
-                    <button class="btn-primary" onclick="buyEtherGen()" id="etherGenBtn" disabled>Générateur (100 Éther)</button>
-                </div>
-                
-                <div class="card dimension-card">
-                    <h2 class="card-title">🌌 Dimension Astrale</h2>
-                    <div class="upgrade-desc">Seconde dimension alternative</div>
-                    <div class="stat">
-                        <span class="stat-label">Astral:</span>
-                        <span class="stat-value" id="astral">0</span>
-                    </div>
-                    <div class="stat">
-                        <span class="stat-label">Extracteurs:</span>
-                        <span class="stat-value" id="astralGens">0</span>
-                    </div>
-                    <button class="btn-warning" onclick="unlockDimension(2)" id="dim2Btn" disabled>Débloquer (200 Cristaux)</button>
-                    <button class="btn-primary" onclick="buyAstralGen()" id="astralGenBtn" disabled>Extracteur (500 Astral)</button>
-                </div>
-            </div>
-        </div>
-        
-        <div id="artifacts" class="tab-content">
-            <div class="card">
-                <h2 class="card-title">💎 Artefacts Légendaires</h2>
-                <div class="stat">
-                    <span class="stat-label">Fragments cosmiques:</span>
-                    <span class="stat-value" id="fragmentsDisplay">0</span>
-                </div>
-                <button class="btn-warning" onclick="searchArtifact()">Chercher un artefact (50 Fragments)</button>
-                <div id="artifactList" class="upgrade-list" style="margin-top: 15px;"></div>
-            </div>
-        </div>
-        
-        <div id="automation" class="tab-content">
-            <div class="grid">
-                <div class="card">
-                    <h2 class="card-title">🏭 Scripts d'automatisation</h2>
-                    <div class="upgrade-list">
-                        <div class="bot-item">
-                            <div class="upgrade-name">Auto-Collecteur</div>
-                            <div class="upgrade-desc">Collecte automatiquement l'Aura</div>
-                            <div class="upgrade-cost">Coût: 1 Essence</div>
-                            <button class="btn-secondary" onclick="unlockBot('autoCollect')" id="bot1Btn">Activer</button>
-                        </div>
-                        <div class="bot-item">
-                            <div class="upgrade-name">Auto-Acheteur</div>
-                            <div class="upgrade-desc">Achète automatiquement des collecteurs</div>
-                            <div class="upgrade-cost">Coût: 5 Essence</div>
-                            <button class="btn-secondary" onclick="unlockBot('autoBuy')" id="bot2Btn" disabled>Activer</button>
-                        </div>
-                        <div class="bot-item">
-                            <div class="upgrade-name">Auto-Combat</div>
-                            <div class="upgrade-desc">Combat automatiquement les ennemis</div>
-                            <div class="upgrade-cost">Coût: 10 Essence</div>
-                            <button class="btn-secondary" onclick="unlockBot('autoBattle')" id="bot3Btn" disabled>Activer</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div id="challenges" class="tab-content">
-            <div class="card">
-                <h2 class="card-title">🎯 Défis</h2>
-                <div class="upgrade-list">
-                    <div class="challenge-item" id="challenge1">
-                        <div class="upgrade-name">Défi: Minimaliste</div>
-                        <div class="upgrade-desc">Atteindre 10k Aura sans collecteurs</div>
-                        <div class="upgrade-cost">Récompense: +50% clics permanents</div>
-                        <button class="btn-warning" onclick="startChallenge(1)">Démarrer</button>
-                    </div>
-                    <div class="challenge-item" id="challenge2">
-                        <div class="upgrade-name">Défi: Guerrier</div>
-                        <div class="upgrade-desc">Vaincre 50 ennemis</div>
-                        <div class="upgrade-cost">Récompense: +100% puissance d'attaque</div>
-                        <button class="btn-warning" onclick="startChallenge(2)">Démarrer</button>
-                    </div>
-                    <div class="challenge-item" id="challenge3">
-                        <div class="upgrade-name">Défi: Speed Run</div>
-                        <div class="upgrade-desc">Atteindre 1M Aura en moins de 5 min</div>
-                        <div class="upgrade-cost">Récompense: x2 Aura/sec permanent</div>
-                        <button class="btn-warning" onclick="startChallenge(3)">Démarrer</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div id="stats" class="tab-content">
-            <div class="card">
-                <h2 class="card-title">📊 Statistiques</h2>
-                <div class="stat">
-                    <span class="stat-label">Aura totale récoltée:</span>
-                    <span class="stat-value" id="totalAuraCollected">0</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-label">Clics effectués:</span>
-                    <span class="stat-value" id="totalClicks">0</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-label">Ennemis vaincus:</span>
-                    <span class="stat-value" id="totalEnemies">0</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-label">Prestiges effectués:</span>
-                    <span class="stat-value" id="totalPrestiges">0</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-label">Temps de jeu:</span>
-                    <span class="stat-value" id="playTime">0s</span>
-                </div>
-                <div class="chart-container">
-                    <h3 style="margin-bottom: 10px;">Production des 30 dernières secondes</h3>
-                    <canvas id="productionChart" width="400" height="150"></canvas>
-                </div>
-            </div>
-        </div>
-        
-        <div id="achievements" class="tab-content">
-            <div class="card">
-                <h2 class="card-title">🏆 Succès</h2>
-                <div id="achievementList"></div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // ===== État de jeu minimal requis par la sauvegarde/chargement & l’UI =====
-        
-
-        const game = {
-            aura: 0,
-            essence: 0,
-            crystals: 0,
-            fragments: 0,
-            ether: 0,
-            astral: 0,
-            totalAura: 0,
-            
-            clickPower: 1,
-            collectors: 0,
-            amplifiers: 0,
-            resonators: 0,
-            etherGens: 0,
-            astralGens: 0,
-            
-            clickUpgrade: 0,
-            efficiencyUpgrade: 0,
-            
-            collectorCost: 10,
-            amplifierCost: 100,
-            resonatorCost: 5,
-            clickCost: 50,
-            efficiencyCost: 2,
-            
-            attackPower: 1,
-            defense: 0,
-            currentEnemy: null,
-            victories: 0,
-            
-            dimensions: {1: false, 2: false},
-            artifacts: [],
-            
-            bots: {autoCollect: false, autoBuy: false, autoBattle: false},
-            
-            activeChallenge: null,
-            completedChallenges: [],
-            challengeProgress: {},
-            
-            stats: {
-                totalClicks: 0,
-                totalEnemies: 0,
-                totalPrestiges: 0,
-                playTime: 0,
-                productionHistory: []
-            },
-            
-            currentEvent: null,
-            eventTimer: 0,
-            
-            conversionCost: 1000,
-            
-            achievements: {}
-        };
-        
-        const achievements = [
-            {id: 'first', name: 'Premier pas', desc: 'Récolter 10 Aura'},
-            {id: 'collector10', name: 'Industriel', desc: 'Posséder 10 collecteurs'},
-            {id: 'essence1', name: 'Essence pure', desc: 'Obtenir 1 Essence'},
-            {id: 'prestige1', name: 'Ascension', desc: 'Effectuer un prestige'},
-            {id: 'aura1m', name: 'Millionnaire', desc: 'Atteindre 1M Aura'},
-            {id: 'warrior', name: 'Guerrier', desc: 'Vaincre 10 ennemis'},
-            {id: 'artifact1', name: 'Collectionneur', desc: 'Trouver 1 artefact'},
-            {id: 'dimension1', name: 'Voyageur dimensionnel', desc: 'Débloquer une dimension'},
-            {id: 'automated', name: 'Automatisé', desc: 'Activer un bot'}
-        ];
-        
-        const artifactTypes = [
-            {name: 'Orbe de puissance', effect: 'mult', value: 1.5, desc: '×1.5 production'},
-            {name: 'Cristal dimensionnel', effect: 'dim', value: 2, desc: '×2 ressources dimensionnelles'},
-            {name: 'Amulette de combat', effect: 'attack', value: 10, desc: '+10 puissance d\'attaque'},
-            {name: 'Anneau d\'essence', effect: 'essence', value: 1.3, desc: '×1.3 gain d\'essence'},
-            {name: 'Gemme de fortune', effect: 'fragments', value: 2, desc: '×2 gain de fragments'}
-        ];
-        
-        const events = [
-            {name: '💫 Vague d\'énergie!', effect: 'mult', value: 2, duration: 30, desc: '×2 production pendant 30s'},
-            {name: '🌟 Pluie de cristaux!', effect: 'crystals', value: 5, duration: 1, desc: '+5 cristaux'},
-            {name: '⚡ Surtension!', effect: 'instant', value: 1000, duration: 1, desc: '+1000 Aura instantanément'},
-            {name: '🎁 Découverte!', effect: 'fragments', value: 10, duration: 1, desc: '+10 fragments cosmiques'}
-        ];
-        // ===== Roue quotidienne =====
-const dailyWheelRewards = [
-    {type: 'aura', value: 100},
-    {type: 'aura', value: 500},
-    {type: 'essence', value: 1},
-    {type: 'crystals', value: 5},
-    {type: 'fragments', value: 20},
-    {type: 'artifact', value: null}, // artefact aléatoire
-    {type: 'multiplier', value: 2}   // bonus temporaire
+// =========================================================
+// BUILDINGS DEF
+// =========================================================
+const BLDG = [
+  {id:'collecteur',  name:'Collecteur',        emoji:'🔮', baseCost:15,       baseAPS:0.1,   desc:'Attire doucement l\'aura ambiante.'},
+  {id:'amplificateur',name:'Amplificateur',    emoji:'⚡', baseCost:100,      baseAPS:0.5,   desc:'Amplifie les flux d\'aura locaux.'},
+  {id:'resonateur',  name:'Résonateur',        emoji:'🌀', baseCost:1100,     baseAPS:5,     desc:'Crée des résonances dans le tissu cosmique.'},
+  {id:'singularite', name:'Singularité',       emoji:'🕳️', baseCost:12000,    baseAPS:25,    desc:'Point de densité infinie. Ne pas approcher.'},
+  {id:'nexus',       name:'Nexus Cosmique',    emoji:'🌐', baseCost:130000,   baseAPS:120,   desc:'Carrefour de toutes les dimensions.'},
+  {id:'portail',     name:'Portail du Vide',   emoji:'🌌', baseCost:1400000,  baseAPS:600,   desc:'Le vide lui-même produit de l\'énergie.'},
+  {id:'etoileNoire', name:'Étoile Noire',      emoji:'⭐', baseCost:20000000, baseAPS:3000,  desc:'Génère aussi de la Mana Noire (1/sec).'},
+  {id:'fracteur',    name:'Fracteur de Réalité',emoji:'💥',baseCost:300000000,baseAPS:15000, desc:'Fracture la réalité. La physique pleure.'},
 ];
 
-let lastWheelDate = null;
-
-function canSpinWheel() {
-    const today = new Date().toDateString();
-    return lastWheelDate !== today;
-}
-
-function spinDailyWheel() {
-    if (!canSpinWheel()) {
-        notify("❌ Vous avez déjà fait tourner la roue aujourd'hui!");
-        return;
-    }
-
-    const reward = dailyWheelRewards[Math.floor(Math.random() * dailyWheelRewards.length)];
-
-    switch (reward.type) {
-        case 'aura': 
-            game.aura += reward.value;
-            game.totalAura += reward.value;
-            notify(`🎉 La roue vous donne +${reward.value} Aura!`);
-            break;
-        case 'essence':
-            game.essence += reward.value;
-            notify(`✨ La roue vous donne +${reward.value} Essence!`);
-            break;
-        case 'crystals':
-            game.crystals += reward.value;
-            notify(`💎 La roue vous donne +${reward.value} Cristaux!`);
-            break;
-        case 'fragments':
-            game.fragments += reward.value;
-            notify(`🔮 La roue vous donne +${reward.value} Fragments!`);
-            break;
-        case 'artifact':
-            const artifact = artifactTypes[Math.floor(Math.random() * artifactTypes.length)];
-            game.artifacts.push(artifact);
-            notify(`🗝️ La roue vous donne un artefact: ${artifact.name}!`);
-            break;
-        case 'multiplier':
-            game.currentEvent = {name:'Bonus roue', effect:'mult', value: reward.value, duration: 60};
-            game.eventTimer = 60;
-            notify(`⚡ Bonus x${reward.value} pour 60s!`);
-            break;
-    }
-
-    lastWheelDate = new Date().toDateString();
-    updateDisplay();
-}
-
-        
-        function switchTab(tab) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById(tab).classList.add('active');
-        }
-        
-        function notify(message) {
-            const div = document.createElement('div');
-            div.className = 'notification';
-            div.textContent = message;
-            document.body.appendChild(div);
-            setTimeout(() => div.remove(), 3000);
-        }
-        
-        function triggerRandomEvent() {
-            if (game.currentEvent) return;
-            if (Math.random() < 0.02) {
-                const ev = events[Math.floor(Math.random() * events.length)];
-                game.currentEvent = ev;
-                game.eventTimer = ev.duration;
-                
-                const banner = document.getElementById('eventBanner');
-                banner.innerHTML = `<div class="event-banner"><strong>${ev.name}</strong><br>${ev.desc}</div>`;
-                
-                if (ev.effect === 'crystals') game.crystals += ev.value;
-                if (ev.effect === 'instant') game.aura += ev.value;
-                if (ev.effect === 'fragments') game.fragments += ev.value;
-                
-                notify(ev.name);
-            }
-        }
-        
-        function collectAura() {
-            const amount = game.clickPower * getMultiplier();
-            game.aura += amount;
-            game.totalAura += amount;
-            game.stats.totalClicks++;
-            updateDisplay();
-            checkAchievements();
-        }
-        
-        
-        function buyCollector() {
-            if (game.aura >= game.collectorCost) {
-                game.aura -= game.collectorCost;
-                game.collectors++;
-                game.collectorCost = Math.floor(game.collectorCost * 1.15);
-                updateDisplay();
-            }
-        }
-        
-        function buyAmplifier() {
-            if (game.aura >= game.amplifierCost) {
-                game.aura -= game.amplifierCost;
-                game.amplifiers++;
-                game.amplifierCost = Math.floor(game.amplifierCost * 1.15);
-                updateDisplay();
-            }
-        }
-        
-        function buyResonator() {
-            if (game.essence >= game.resonatorCost) {
-                game.essence -= game.resonatorCost;
-                game.resonators++;
-                game.resonatorCost = Math.floor(game.resonatorCost * 1.2);
-                updateDisplay();
-            }
-        }
-        
-        function buyClickPower() {
-            if (game.aura >= game.clickCost) {
-                game.aura -= game.clickCost;
-                game.clickUpgrade++;
-                game.clickPower++;
-                game.clickCost = Math.floor(game.clickCost * 1.5);
-                updateDisplay();
-            }
-        }
-        
-        function buyEfficiency() {
-            if (game.essence >= game.efficiencyCost) {
-                game.essence -= game.efficiencyCost;
-                game.efficiencyUpgrade++;
-                game.efficiencyCost = Math.floor(game.efficiencyCost * 2);
-                updateDisplay();
-            }
-        }
-
-// ===== Petits helpers =====
-function escapeHtml(str) {
-    if (!str && str !== 0) return '';
-    return String(str).replace(/[&<>"'`]/g, function (s) {
-        return ({
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#39;',
-            '`': '&#x60;'
-        })[s];
+// =========================================================
+// UPGRADES DEF (milestone-based per building)
+// =========================================================
+const UPGRADES = [];
+BLDG.forEach(b => {
+  const tiers = [
+    {t:1,  mult:2, cost:b.baseCost*8},
+    {t:5,  mult:2, cost:b.baseCost*50},
+    {t:10, mult:3, cost:b.baseCost*200},
+    {t:25, mult:3, cost:b.baseCost*1000},
+    {t:50, mult:5, cost:b.baseCost*5000},
+    {t:100,mult:5, cost:b.baseCost*30000},
+    {t:200,mult:10,cost:b.baseCost*200000},
+    {t:500,mult:10,cost:b.baseCost*2000000},
+  ];
+  const roman = ['I','II','III','IV','V','VI','VII','VIII'];
+  tiers.forEach((ti,i)=>{
+    UPGRADES.push({
+      id:`${b.id}_m${i}`, bldId:b.id, name:`${b.name} ${roman[i]}`,
+      desc:`×${ti.mult} production des ${b.name}s`,
+      requires:ti.t, cost:ti.cost, currency:'aura', type:'bld_mult', value:ti.mult
     });
+  });
+});
+// Special global upgrades
+const GLOBAL_UPGRADES = [
+  {id:'click_combo',  name:'Maître du Combo',     desc:'×2 multiplicateur max du combo', cost:500,    currency:'aura',     type:'combo_max', value:2},
+  {id:'ess_mastery',  name:'Maîtrise de l\'Essence',desc:'Conversion: 2500 Aura→Essence', cost:5,     currency:'essence',  type:'conv_cost', value:2500},
+  {id:'frag_boost',   name:'Collecteur de Fragments',desc:'×2 fragments des ennemis',     cost:3,     currency:'essence',  type:'frag_mult', value:2},
+  {id:'cryst_power',  name:'Puissance Cristalline', desc:'×1.5 gain de Cristaux',          cost:15,    currency:'essence',  type:'cryst_gain',value:1.5},
+  {id:'offline_prod', name:'Flux Passif',           desc:'75% prod en offline (était 50%)',cost:20,    currency:'essence',  type:'offline',   value:0.75},
+  {id:'boss_bonus',   name:'Tueur de Boss',         desc:'×3 fragments des boss',           cost:8,    currency:'essence',  type:'boss_frag', value:3},
+  {id:'auto_collect', name:'Auto-Collecteur',        desc:'Auto-clic 5/sec',                cost:2,    currency:'essence',  type:'bot_click', value:5},
+  {id:'auto_buy',     name:'Auto-Acheteur',           desc:'Achète automatiquement bâtiments',cost:10,  currency:'essence',  type:'bot_buy',   value:1},
+  {id:'auto_battle',  name:'Auto-Combat',             desc:'Combat automatique',              cost:15,  currency:'essence',  type:'bot_battle',value:1},
+  {id:'click_power2', name:'Clics Titanesques',       desc:'×10 puissance de clic',           cost:30,  currency:'essence',  type:'click_mult',value:10},
+  {id:'prod_mega',    name:'Surcharge Cosmique',      desc:'×5 production globale',           cost:100, currency:'essence',  type:'global_mult',value:5},
+  {id:'prod_omega',   name:'Flux Omega',              desc:'×10 production globale',          cost:500, currency:'essence',  type:'global_mult',value:10},
+];
+UPGRADES.push(...GLOBAL_UPGRADES);
+
+// =========================================================
+// RESEARCH DEF (essence-based, resets on prestige)
+// =========================================================
+const RESEARCH_DEF = [
+  {id:'r_eff1',   name:'Efficacité I',       desc:'×1.5 production',          cost:3,   type:'prod_mult',value:1.5, req:null},
+  {id:'r_eff2',   name:'Efficacité II',      desc:'×2 production',            cost:15,  type:'prod_mult',value:2,   req:'r_eff1'},
+  {id:'r_eff3',   name:'Efficacité III',     desc:'×3 production',            cost:75,  type:'prod_mult',value:3,   req:'r_eff2'},
+  {id:'r_eff4',   name:'Efficacité IV',      desc:'×5 production',            cost:400, type:'prod_mult',value:5,   req:'r_eff3'},
+  {id:'r_clic1',  name:'Clic Puissant',      desc:'×3 puissance clic',        cost:2,   type:'click_mult',value:3, req:null},
+  {id:'r_clic2',  name:'Hyper-Clic',         desc:'×5 puissance clic',        cost:20,  type:'click_mult',value:5, req:'r_clic1'},
+  {id:'r_frag1',  name:'Pilleur de Donjons', desc:'×2 fragments des combats', cost:5,   type:'frag_mult',value:2,  req:null},
+  {id:'r_cryst1', name:'Alchimie des Cristaux',desc:'×1.5 gain cristaux',     cost:10,  type:'cryst_mult',value:1.5,req:null},
+  {id:'r_cryst2', name:'Grand Alchimiste',   desc:'×2 gain cristaux',         cost:60,  type:'cryst_mult',value:2,  req:'r_cryst1'},
+  {id:'r_dim1',   name:'Voyage Dimensionnel',desc:'Débloque les Dimensions',  cost:8,   type:'unlock_dim',value:1,  req:null},
+  {id:'r_conv1',  name:'Transmutation I',    desc:'×2 essence par conversion',cost:4,   type:'ess_mult',value:2,   req:null},
+  {id:'r_conv2',  name:'Transmutation II',   desc:'×3 essence par conversion',cost:40,  type:'ess_mult',value:3,   req:'r_conv1'},
+  {id:'r_combat1',name:'Arts Martiaux',      desc:'×2 attaque',               cost:6,   type:'atk_mult',value:2,   req:null},
+  {id:'r_combat2',name:'Guerrier Cosmique',  desc:'×5 attaque',               cost:40,  type:'atk_mult',value:5,   req:'r_combat1'},
+  {id:'r_offline',name:'Flux Passif',        desc:'50% prod offline',         cost:15,  type:'offline',  value:0.5, req:'r_eff1'},
+  {id:'r_art1',   name:'Archéologie Cosmique',desc:'×2 qualité artefacts',   cost:25,  type:'art_qual', value:2,   req:null},
+];
+
+// =========================================================
+// MANA SHOP DEF (permanent, survives all resets)
+// =========================================================
+const MANA_SHOP = [
+  {id:'ms_prod1', name:'Sursaut de Mana I',    desc:'×1.2 prod. permanente',    cost:30,  type:'perm_prod',  value:1.2, maxBuy:5},
+  {id:'ms_prod2', name:'Sursaut de Mana II',   desc:'×1.5 prod. permanente',    cost:200, type:'perm_prod',  value:1.5, maxBuy:3},
+  {id:'ms_prod3', name:'Sursaut de Mana III',  desc:'×3 prod. permanente',      cost:2000,type:'perm_prod',  value:3,   maxBuy:2},
+  {id:'ms_cryst1',name:'Forge de Cristal I',   desc:'×1.3 gain cristaux perma', cost:50,  type:'perm_cryst', value:1.3, maxBuy:4},
+  {id:'ms_cryst2',name:'Forge de Cristal II',  desc:'×2 gain cristaux perma',   cost:500, type:'perm_cryst', value:2,   maxBuy:2},
+  {id:'ms_pres1', name:'Réduction Prestige I', desc:'-10% req. prestige',        cost:100, type:'pres_red',   value:0.9, maxBuy:5},
+  {id:'ms_pres2', name:'Réduction Prestige II',desc:'-20% req. prestige',        cost:1000,type:'pres_red',   value:0.8, maxBuy:3},
+  {id:'ms_click1',name:'Frappe de Mana',       desc:'×2 clic perma',            cost:25,  type:'perm_click', value:2,   maxBuy:5},
+  {id:'ms_start1',name:'Boost de Départ I',    desc:'Commence avec 10 coll.',   cost:150, type:'start_bld',  value:10,  maxBuy:3},
+  {id:'ms_frag1', name:'Chasseur de l\'Ombre', desc:'×2 frag. perma',           cost:75,  type:'perm_frag',  value:2,   maxBuy:3},
+];
+
+// =========================================================
+// ACHIEVEMENTS DEF
+// =========================================================
+const ACHS = [
+  {id:'ach_first',    name:'Premier Pas',          desc:'Récolter 100 Aura',           icon:'👶'},
+  {id:'ach_1k',       name:'Millier',               desc:'Atteindre 1,000 Aura',        icon:'💰'},
+  {id:'ach_1m',       name:'Millionnaire',          desc:'Atteindre 1,000,000 Aura',    icon:'💎'},
+  {id:'ach_1b',       name:'Milliardaire',          desc:'Atteindre 1 Milliard Aura',   icon:'🤑'},
+  {id:'ach_click100', name:'Cliqueur',              desc:'100 clics',                   icon:'👆'},
+  {id:'ach_click10k', name:'Mains de Fer',          desc:'10,000 clics',                icon:'🤜'},
+  {id:'ach_bld50',    name:'Empire',                desc:'Posséder 50 bâtiments total', icon:'🏰'},
+  {id:'ach_bld500',   name:'Méga-Empire',           desc:'500 bâtiments total',         icon:'🌆'},
+  {id:'ach_pres1',    name:'Premier Prestige',      desc:'Effectuer un Prestige',       icon:'⭐'},
+  {id:'ach_pres5',    name:'Obsessionnel',          desc:'5 Prestiges effectués',       icon:'🌟'},
+  {id:'ach_pres10',   name:'Transcendant',          desc:'10 Prestiges effectués',      icon:'💫'},
+  {id:'ach_asc1',     name:'Ascension',             desc:'Effectuer une Ascension',     icon:'🌠'},
+  {id:'ach_enemy10',  name:'Guerrier',              desc:'Vaincre 10 ennemis',          icon:'⚔️'},
+  {id:'ach_boss1',    name:'Tueur de Boss',         desc:'Vaincre un Boss',             icon:'👑'},
+  {id:'ach_boss10',   name:'Légende de Combat',     desc:'Vaincre 10 Boss',             icon:'🏆'},
+  {id:'ach_art3',     name:'Collectionneur',        desc:'Posséder 3 artefacts',        icon:'💎'},
+  {id:'ach_art10',    name:'Archiviste Cosmique',   desc:'Posséder 10 artefacts',       icon:'📚'},
+  {id:'ach_ess100',   name:'Sage',                  desc:'Accumuler 100 Essence',       icon:'💠'},
+  {id:'ach_cryst50',  name:'Roi des Cristaux',      desc:'Avoir 50 Cristaux',           icon:'👑'},
+  {id:'ach_mana100',  name:'Maître de la Mana',     desc:'Accumuler 100 Mana Noire',    icon:'🔥'},
+  {id:'ach_chal1',    name:'Défiant',               desc:'Compléter un défi',           icon:'🎯'},
+  {id:'ach_combo20',  name:'Combo Master',          desc:'Atteindre combo ×10',         icon:'🎮'},
+  {id:'ach_trans1',   name:'Transcendance',         desc:'Effectuer une Transcendance', icon:'🌌'},
+];
+
+// =========================================================
+// CHALLENGES DEF
+// =========================================================
+const CHALLENGES = [
+  {id:'chal1', name:'Minimaliste',  desc:'Atteindre 100M Aura sans aucun bâtiment.',      reward:'×2 click perma', type:'no_bld', target:100000000},
+  {id:'chal2', name:'Guerrier',     desc:'Vaincre 100 ennemis sans améliorations achetées.',reward:'×3 attaque perma',type:'combat', target:100},
+  {id:'chal3', name:'Speed Run',    desc:'Atteindre 10M Aura en moins de 10 minutes.',     reward:'×2 APS perma',   type:'speed', target:10000000},
+  {id:'chal4', name:'Économe',      desc:'Prestige sans jamais acheter de Recherche.',      reward:'+50% cristaux perma',type:'no_research',target:0},
+  {id:'chal5', name:'Hardcore',     desc:'Atteindre 1B Aura avec seulement des Collecteurs.',reward:'×5 coll. perma',type:'only_coll',target:1000000000},
+];
+
+// =========================================================
+// ARTIFACTS DEF
+// =========================================================
+const ARTIFACT_POOL = [
+  {name:'Orbe de Puissance',    effect:'prod_mult',  value:1.5, rare:false, desc:'×1.5 production totale'},
+  {name:'Cristal Dimensionnel', effect:'dim_mult',   value:2,   rare:false, desc:'×2 ressources dimensionnelles'},
+  {name:'Amulette de Combat',   effect:'atk_flat',   value:15,  rare:false, desc:'+15 puissance d\'attaque'},
+  {name:'Anneau d\'Essence',    effect:'ess_mult',   value:1.3, rare:false, desc:'×1.3 gain Essence par conversion'},
+  {name:'Gemme de Fortune',     effect:'frag_mult',  value:2,   rare:false, desc:'×2 fragments des ennemis'},
+  {name:'Noyau Stellaire',      effect:'click_mult', value:2,   rare:false, desc:'×2 puissance de clic'},
+  {name:'Prisme Éternel',       effect:'cryst_mult', value:1.5, rare:false, desc:'×1.5 gain de Cristaux'},
+  {name:'★ Éclat Primordial',   effect:'prod_mult',  value:3,   rare:true,  desc:'×3 production totale (RARE!)'},
+  {name:'★ Œil du Vide',        effect:'all_mult',   value:2,   rare:true,  desc:'×2 TOUT (RARE!)'},
+  {name:'★ Larme de la Réalité',effect:'pres_mult',  value:2,   rare:true,  desc:'×2 cristaux par prestige (RARE!)'},
+];
+
+// =========================================================
+// EVENTS DEF
+// =========================================================
+const EVENTS_DEF = [
+  {name:'💫 Vague d\'Énergie!',   effect:'prod_mult',  value:3,   dur:30, desc:'×3 production pendant 30s'},
+  {name:'🌟 Pluie de Cristaux!',  effect:'crystals',   value:10,  dur:1,  desc:'+10 Cristaux instantanément!'},
+  {name:'⚡ Surtension!',          effect:'instant',    value:0,   dur:1,  desc:'+10min d\'APS instantanément'},
+  {name:'🎁 Découverte!',          effect:'fragments',  value:50,  dur:1,  desc:'+50 Fragments cosmiques'},
+  {name:'💥 Cascade Cosmique!',   effect:'click_mult', value:10,  dur:20, desc:'×10 clics pendant 20s'},
+  {name:'🔮 Tornade d\'Essence!', effect:'essence',    value:10,  dur:1,  desc:'+10 Essence instantanément'},
+];
+
+// =========================================================
+// GAME STATE
+// =========================================================
+function defaultGame(){
+  const bldCounts = {}, bldMults = {}, bldCosts = {};
+  BLDG.forEach(b=>{bldCounts[b.id]=0;bldMults[b.id]=1;bldCosts[b.id]=b.baseCost});
+  return {
+    aura:0, essence:0, crystals:0, fragments:0, manaNoire:0,
+    eclats:0, noyaux:0, totalAura:0,
+    buildings: bldCounts,
+    bldMults: bldMults,
+    bldCosts: bldCosts,
+    upgrades: {},
+    research: {},
+    manaShopOwned: {},
+    artifacts: [],
+    dimensions:{1:{unlocked:false,res:0,gens:0,res2:0,gens2:0}},
+    dimResources:{ether:0,astral:0,shadow:0,cosmic:0},
+    dimGens:{ether:0,astral:0,shadow:0,cosmic:0},
+    clickPower:1,
+    clickCombo:0, clickComboMult:1, lastClickTime:0,
+    attackPower:1, defense:0,
+    currentEnemy:null, victories:0, bossCount:0,
+    bots:{click:false,buy:false,battle:false},
+    activeChallenge:null, completedChallenges:[], challengeProgress:{},
+    challengeRewards:{},
+    currentEvent:null, eventTimer:0,
+    stats:{
+      totalClicks:0, totalEnemies:0, totalPrestiges:0,
+      playTime:0, productionHistory:[], totalAuraAllTime:0,
+      ascensionCount:0, transcendanceCount:0, totalBossKills:0,
+    },
+    achievements:{},
+    milestones:{},
+    lastSave:Date.now(),
+    lastDailyWheel:null,
+  };
+}
+let game = defaultGame();
+
+// =========================================================
+// BULK BUY
+// =========================================================
+let bulkMode = 1;
+function setBulk(n){ bulkMode = n; document.getElementById('bulk-lbl').textContent = n==='max'?'MAX':'×'+n; }
+
+// =========================================================
+// HELPERS
+// =========================================================
+function fmt(n){
+  if(n===undefined||n===null||isNaN(n)) return '0';
+  if(n>=1e15) return (n/1e15).toFixed(2)+'Qa';
+  if(n>=1e12) return (n/1e12).toFixed(2)+'T';
+  if(n>=1e9)  return (n/1e9).toFixed(2)+'B';
+  if(n>=1e6)  return (n/1e6).toFixed(2)+'M';
+  if(n>=1e3)  return (n/1e3).toFixed(2)+'k';
+  return Math.floor(n).toLocaleString('fr');
+}
+function fmtDec(n,d=1){ return n>=1e6?fmt(n):n.toFixed(d); }
+function esc(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+function getPrestigeClass(p){
+  p=Number(p)||0;
+  if(p>=500) return 'pp-legend';
+  if(p>=100) return 'pp-gold';
+  if(p>=50)  return 'pp-silver';
+  if(p>=10)  return 'pp-bronze';
+  return 'pp-default';
 }
 
-function getPrestigeClass(prestige) {
-    prestige = Number(prestige) || 0;
-    if (prestige >= 500) return 'prestige-legend';
-    if (prestige >= 100) return 'prestige-gold';
-    if (prestige >= 50) return 'prestige-silver';
-    if (prestige >= 10) return 'prestige-bronze';
-    return 'prestige-default';
+// =========================================================
+// PRODUCTION ENGINE
+// =========================================================
+function getBldAPS(bldId){
+  const b = BLDG.find(x=>x.id===bldId);
+  const cnt = game.buildings[bldId]||0;
+  if(cnt===0) return 0;
+  return b.baseAPS * cnt * (game.bldMults[bldId]||1);
 }
-
-function convertToEssence() {
-    // conversion : 1000 Aura -> 1 Essence par clic
-    if (game.aura < 1000) return;
-    const convertCount = 1; // mettre Math.floor(game.aura / 1000) pour tout convertir d’un coup
-    game.aura -= 1000 * convertCount;
-    game.essence += 1 * convertCount;
-    updateDisplay();
-    notify(`✨ +${convertCount} Essence(s)`);
+function getResearchProdMult(){
+  let m=1;
+  if(game.research.r_eff1) m*=1.5;
+  if(game.research.r_eff2) m*=2;
+  if(game.research.r_eff3) m*=3;
+  if(game.research.r_eff4) m*=5;
+  return m;
 }
-
-        
-        function findEnemy() {
-            const level = Math.floor(game.victories / 5) + 1;
-            const hp = 10 * level * (1 + Math.random());
-            const power = 2 * level;
-            const reward = Math.floor(5 * level * (1 + Math.random()));
-            
-            game.currentEnemy = {
-                name: ['Ombre cosmique', 'Démon astral', 'Gardien éthéré', 'Entité du chaos'][Math.floor(Math.random() * 4)],
-                hp: hp,
-                maxHp: hp,
-                power: power,
-                reward: reward,
-                level: level
-            };
-            
-            updateDisplay();
-        }
-        
-        function attackEnemy() {
-            if (!game.currentEnemy) return;
-            
-            const damage = game.attackPower - game.currentEnemy.power + game.defense;
-            if (damage > 0) {
-                game.currentEnemy.hp -= damage;
-                
-                if (game.currentEnemy.hp <= 0) {
-                    game.fragments += game.currentEnemy.reward;
-                    game.victories++;
-                    game.stats.totalEnemies++;
-                    notify(`Victoire! +${game.currentEnemy.reward} fragments`);
-                    game.currentEnemy = null;
-                    
-                    if (game.activeChallenge === 2) {
-                        game.challengeProgress[2] = (game.challengeProgress[2] || 0) + 1;
-                    }
-                }
-            } else {
-                notify('Trop puissant! Améliorez votre équipement!');
-            }
-            
-            updateDisplay();
-            checkAchievements();
-        }
-        
-        function buyWeapon() {
-            if (game.essence >= 10) {
-                game.essence -= 10;
-                game.attackPower += 5;
-                notify('Épée cosmique obtenue!');
-                updateDisplay();
-            }
-        }
-        
-        function buyArmor() {
-            if (game.essence >= 10) {
-                game.essence -= 10;
-                game.defense += 3;
-                notify('Armure énergétique obtenue!');
-                updateDisplay();
-            }
-        }
-        
-        function unlockDimension(dim) {
-            const cost = dim === 1 ? 50 : 200;
-            if (game.crystals >= cost && !game.dimensions[dim]) {
-                game.crystals -= cost;
-                game.dimensions[dim] = true;
-                notify(`Dimension ${dim} débloquée!`);
-                updateDisplay();
-                checkAchievements();
-            }
-        }
-        
-        function buyEtherGen() {
-            if (game.ether >= 100) {
-                game.ether -= 100;
-                game.etherGens++;
-                updateDisplay();
-            }
-        }
-        
-        function buyAstralGen() {
-            if (game.astral >= 500) {
-                game.astral -= 500;
-                game.astralGens++;
-                updateDisplay();
-            }
-        }
-        
-        function searchArtifact() {
-            if (game.fragments >= 50) {
-                game.fragments -= 50;
-                const artifact = artifactTypes[Math.floor(Math.random() * artifactTypes.length)];
-                game.artifacts.push(artifact);
-                notify(`Artefact trouvé: ${artifact.name}!`);
-                updateDisplay();
-                checkAchievements();
-            }
-        }
-        
-        function unlockBot(type) {
-            const costs = {autoCollect: 1, autoBuy: 5, autoBattle: 10};
-            if (game.essence >= costs[type] && !game.bots[type]) {
-                game.essence -= costs[type];
-                game.bots[type] = true;
-                notify(`Bot activé: ${type}!`);
-                updateDisplay();
-                checkAchievements();
-            }
-        }
-        
-        function startChallenge(id) {
-            game.activeChallenge = id;
-            game.challengeProgress[id] = 0;
-            
-            if (id === 3) game.challengeProgress[id] = Date.now();
-            
-            notify(`Défi ${id} commencé!`);
-            updateDisplay();
-        }
-        
-        function checkChallengeCompletion() {
-            if (game.activeChallenge === 1 && game.aura >= 10000 && game.collectors === 0) {
-                game.completedChallenges.push(1);
-                game.clickPower = Math.floor(game.clickPower * 1.5);
-                notify('Défi 1 complété! +50% clics');
-                game.activeChallenge = null;
-            }
-            
-            if (game.activeChallenge === 2 && game.challengeProgress[2] >= 50) {
-                game.completedChallenges.push(2);
-                game.attackPower *= 2;
-                notify('Défi 2 complété! x2 attaque');
-                game.activeChallenge = null;
-            }
-            
-            if (game.activeChallenge === 3 && game.totalAura >= 1000000) {
-                const elapsed = (Date.now() - game.challengeProgress[3]) / 1000;
-                if (elapsed <= 300) {
-                    game.completedChallenges.push(3);
-                    notify('Défi 3 complété! x2 production');
-                    game.activeChallenge = null;
-                }
-            }
-        }
-        
-function getMultiplier() {
-    let mult = 1;
-
-    // Progression logarithmique sur les cristaux
-    mult *= 1 + Math.log10(game.crystals + 1); 
-
-    // Progression exponentielle sur l'efficacité
-    mult *= Math.pow(1.5, game.efficiencyUpgrade);
-
-    // Bonus d’événement
-    if (game.currentEvent && game.currentEvent.effect === 'mult') {
-        mult *= game.currentEvent.value;
+function getResearchEssMult(){
+  let m=1;
+  if(game.research.r_conv1) m*=2;
+  if(game.research.r_conv2) m*=3;
+  return m;
+}
+function getResearchFragMult(){
+  let m=1;
+  if(game.research.r_frag1) m*=2;
+  return m;
+}
+function getResearchCrystMult(){
+  let m=1;
+  if(game.research.r_cryst1) m*=1.5;
+  if(game.research.r_cryst2) m*=2;
+  return m;
+}
+function getResearchAtkMult(){
+  let m=1;
+  if(game.research.r_combat1) m*=2;
+  if(game.research.r_combat2) m*=5;
+  return m;
+}
+function getUpgradeProdMult(){
+  let m=1;
+  if(game.upgrades.prod_mega) m*=5;
+  if(game.upgrades.prod_omega) m*=10;
+  return m;
+}
+function getCrystalProdMult(){
+  return 1 + (game.crystals||0) * 0.04;
+}
+function getEclatProdMult(){
+  return 1 + (game.eclats||0) * 0.20;
+}
+function getNoyauProdMult(){
+  return 1 + (game.noyaux||0) * 0.50;
+}
+function getEventProdMult(){
+  if(game.currentEvent && game.currentEvent.effect==='prod_mult') return game.currentEvent.value;
+  return 1;
+}
+function getManaProdMult(){
+  let m=1;
+  const s = MANA_SHOP;
+  s.forEach(ms=>{
+    const owned = game.manaShopOwned[ms.id]||0;
+    if(owned>0){
+      if(ms.type==='perm_prod') m*=Math.pow(ms.value, owned);
     }
+  });
+  return m;
+}
+function getChallengeProdMult(){
+  let m=1;
+  if(game.completedChallenges.includes('chal3') || game.challengeRewards['chal3']) m*=2;
+  return m;
+}
+function getArtifactProdMult(){
+  let m=1;
+  (game.artifacts||[]).forEach(a=>{
+    if(a.effect==='prod_mult') m*=a.value;
+    if(a.effect==='all_mult') m*=a.value;
+  });
+  return m;
+}
+function getEventClickMult(){
+  if(game.currentEvent && game.currentEvent.effect==='click_mult') return game.currentEvent.value;
+  return 1;
+}
+function getGlobalMult(){
+  return getResearchProdMult()
+    * getCrystalProdMult()
+    * getEclatProdMult()
+    * getNoyauProdMult()
+    * getEventProdMult()
+    * getManaProdMult()
+    * getChallengeProdMult()
+    * getUpgradeProdMult()
+    * getArtifactProdMult();
+}
+function getAPS(){
+  let base=0;
+  BLDG.forEach(b=>{ base+=getBldAPS(b.id); });
+  // Challenge: no_bld disables bldg prod
+  if(game.activeChallenge==='chal1') base=0;
+  if(game.activeChallenge==='chal5'){
+    // Only collecteurs
+    let colOnly = getBldAPS('collecteur');
+    base = colOnly;
+  }
+  return base * getGlobalMult();
+}
+function getManaPerSec(){
+  const en = game.buildings.etoileNoire||0;
+  let rate = en * 1;
+  // Mana research bonus
+  if(game.research && game.research.r_mana1) rate*=2;
+  return rate;
+}
+function getClickPowerActual(){
+  let p = game.clickPower;
+  if(game.research.r_clic1) p*=3;
+  if(game.research.r_clic2) p*=5;
+  if(game.upgrades.click_power2) p*=10;
+  if(game.challengeRewards && game.challengeRewards['chal1']) p*=2;
+  if(game.challengeRewards && game.challengeRewards['chal5']) p*=1;
+  // Mana shop
+  MANA_SHOP.forEach(ms=>{
+    const owned = game.manaShopOwned[ms.id]||0;
+    if(owned>0 && ms.type==='perm_click') p*=Math.pow(ms.value,owned);
+  });
+  // Artifacts
+  (game.artifacts||[]).forEach(a=>{
+    if(a.effect==='click_mult') p*=a.value;
+    if(a.effect==='all_mult') p*=a.value;
+  });
+  p *= (game.clickComboMult||1);
+  p *= getEventClickMult();
+  p *= getGlobalMult();
+  return p;
+}
 
-    // Artefacts multiplicateurs
-    game.artifacts.forEach(a => {
-        if (a.effect === 'mult') mult *= a.value;
-        if (a.effect === 'essence') mult *= Math.pow(1.2, game.essence); // essence augmente multiplicateur
+// =========================================================
+// PRESTIGE MATH
+// =========================================================
+function getPrestigeManaProdReduction(){
+  let m=1;
+  MANA_SHOP.forEach(ms=>{
+    const owned = game.manaShopOwned[ms.id]||0;
+    if(owned>0 && ms.type==='pres_red') m*=Math.pow(ms.value,owned);
+  });
+  return m;
+}
+function getPrestigeReq(){
+  const n = game.stats.totalPrestiges||0;
+  let base = 10000000 * Math.pow(5,n); // 10M × 5^n: P0=10M P1=50M P2=250M P3=1.25B...
+  base *= getPrestigeManaProdReduction();
+  return Math.floor(base);
+}
+function getCrystalGain(){
+  const aura = game.aura||0;
+  const n = game.stats.totalPrestiges||0;
+  let gain = Math.max(1, Math.floor(Math.sqrt(aura/1e6) * (1 + n*0.08)));
+  // Research bonus
+  gain = Math.floor(gain * getResearchCrystMult());
+  // Upgrade bonus
+  if(game.upgrades.cryst_power) gain = Math.floor(gain*1.5);
+  // Artifact bonus
+  (game.artifacts||[]).forEach(a=>{
+    if(a.effect==='cryst_mult') gain = Math.floor(gain*a.value);
+    if(a.effect==='pres_mult')  gain = Math.floor(gain*a.value);
+    if(a.effect==='all_mult')   gain = Math.floor(gain*a.value);
+  });
+  // Mana shop
+  MANA_SHOP.forEach(ms=>{
+    const owned = game.manaShopOwned[ms.id]||0;
+    if(owned>0 && ms.type==='perm_cryst') gain = Math.floor(gain*Math.pow(ms.value,owned));
+  });
+  // Challenge reward
+  if(game.challengeRewards && game.challengeRewards['chal4']) gain = Math.floor(gain*1.5);
+  return gain;
+}
+function getAscensionReq(){
+  const n = game.stats.ascensionCount||0;
+  return { crystals: Math.floor(500 * Math.pow(4,n)), prestiges: Math.floor(20 * Math.pow(2,n)) };
+}
+function getEclatGain(){
+  const cr = game.crystals||0;
+  return Math.max(1, Math.floor(Math.sqrt(cr/10)));
+}
+function getTranscendanceReq(){
+  const n = game.stats.transcendanceCount||0;
+  return { eclats: Math.floor(50 * Math.pow(3,n)), ascensions: Math.floor(5 * (n+1)) };
+}
+
+// =========================================================
+// CLICK COMBO
+// =========================================================
+function updateCombo(){
+  const now = Date.now();
+  const diff = (now - (game.lastClickTime||now)) / 1000;
+  if(diff > 1.0){
+    game.clickCombo = 0;
+    game.clickComboMult = 1;
+  }
+  game.lastClickTime = now;
+  let maxCombo = game.upgrades.click_combo ? 40 : 20;
+  game.clickCombo = Math.min(maxCombo, (game.clickCombo||0) + 1);
+  game.clickComboMult = 1 + (game.clickCombo / maxCombo) * 2; // ×1→×3
+  if(game.clickCombo>=maxCombo*0.5) unlockAch('ach_combo20');
+}
+
+// =========================================================
+// CORE ACTIONS
+// =========================================================
+function clickAura(){
+  updateCombo();
+  const amount = getClickPowerActual();
+  game.aura += amount;
+  game.totalAura += amount;
+  game.stats.totalClicks++;
+  game.stats.totalAuraAllTime += amount;
+  checkAchievements();
+  updateDisplay();
+}
+function convertEssence(){
+  const cost = game.upgrades.ess_mastery ? 2500 : 5000;
+  if(game.aura < cost) return;
+  const times = 1;
+  let ess = 1 * getResearchEssMult();
+  (game.artifacts||[]).forEach(a=>{ if(a.effect==='ess_mult') ess *= a.value; });
+  game.aura -= cost * times;
+  game.essence += ess * times;
+  notify(`💠 +${fmtDec(ess*times)} Essence`);
+  updateDisplay();
+  checkAchievements();
+}
+function buyBuilding(bldId, times){
+  const b = BLDG.find(x=>x.id===bldId);
+  if(!b) return;
+  // Challenge: no_bld
+  if(game.activeChallenge==='chal1') return notify('❌ Défi Minimaliste: Pas de bâtiments!');
+  if(game.activeChallenge==='chal5' && bldId!=='collecteur') return notify('❌ Défi Hardcore: Collecteurs seulement!');
+
+  let n = times==='max' ? 1 : times;
+  if(times==='max'){
+    // Calculate max affordable
+    n=0;
+    let tmpAura=game.aura, tmpCost=game.bldCosts[bldId];
+    while(tmpAura>=tmpCost && n<1000){
+      tmpAura-=tmpCost;tmpCost=Math.ceil(tmpCost*1.15);n++;
+    }
+    if(n===0) return;
+  }
+  for(let i=0;i<n;i++){
+    const cost = game.bldCosts[bldId];
+    if(game.aura < cost) break;
+    game.aura -= cost;
+    game.buildings[bldId]++;
+    game.bldCosts[bldId] = Math.ceil(cost*1.15);
+  }
+  checkMilestoneUpgrades();
+  checkAchievements();
+  updateDisplay();
+}
+function buyUpgrade(id){
+  if(game.upgrades[id]) return;
+  const upg = UPGRADES.find(u=>u.id===id);
+  if(!upg) return;
+  // Check challenge restrictions
+  if(game.activeChallenge==='chal4' && upg.currency==='essence') return notify('❌ Défi Économe: Pas de Recherche!');
+  const cur = upg.currency;
+  if(game.aura < 0) return; // guard
+  if(cur==='aura' && game.aura < upg.cost){ notify('❌ Pas assez d\'Aura'); return; }
+  if(cur==='essence' && game.essence < upg.cost){ notify('❌ Pas assez d\'Essence'); return; }
+  if(cur==='aura') game.aura -= upg.cost;
+  if(cur==='essence') game.essence -= upg.cost;
+  game.upgrades[id] = true;
+  applyUpgrade(upg);
+  notify(`⬆️ ${upg.name} acheté!`);
+  checkAchievements();
+  updateDisplay();
+}
+function applyUpgrade(upg){
+  if(upg.type==='bld_mult'){
+    game.bldMults[upg.bldId] = (game.bldMults[upg.bldId]||1) * upg.value;
+  }
+  // Other types applied dynamically in getGlobalMult etc.
+}
+function checkMilestoneUpgrades(){
+  // Auto-reveal upgrades when building count thresholds are met
+  // They are shown in upgrades tab if unlocked but not yet bought
+}
+function buyResearch(id){
+  if(game.research[id]) return;
+  const r = RESEARCH_DEF.find(x=>x.id===id);
+  if(!r) return;
+  if(r.req && !game.research[r.req]){ notify('❌ Prérequis manquant: '+RESEARCH_DEF.find(x=>x.id===r.req)?.name); return; }
+  if(game.activeChallenge==='chal4'){ notify('❌ Défi Économe: Pas de Recherche!'); return; }
+  if(game.essence < r.cost){ notify('❌ Pas assez d\'Essence'); return; }
+  game.essence -= r.cost;
+  game.research[id] = true;
+  notify(`🔬 Recherche: ${r.name} débloquée!`);
+  checkAchievements();
+  updateDisplay();
+}
+function buyManaShop(id){
+  const ms = MANA_SHOP.find(x=>x.id===id);
+  if(!ms) return;
+  const owned = game.manaShopOwned[id]||0;
+  if(owned >= ms.maxBuy){ notify('❌ Niveau maximum atteint!'); return; }
+  if(game.manaNoire < ms.cost){ notify('❌ Pas assez de Mana Noire'); return; }
+  game.manaNoire -= ms.cost;
+  game.manaShopOwned[id] = owned+1;
+  notify(`🔥 ${ms.name} acheté! (${owned+1}/${ms.maxBuy})`);
+  updateDisplay();
+}
+
+// =========================================================
+// PRESTIGE LAYERS
+// =========================================================
+function doPrestige(){
+  const req = getPrestigeReq();
+  if(game.aura < req){ notify('❌ Pas assez d\'Aura!'); return; }
+  const gain = getCrystalGain();
+  game.crystals += gain;
+  game.stats.totalPrestiges++;
+  const presN = game.stats.totalPrestiges;
+  // Reset
+  game.aura=0; game.essence=0; game.fragments=Math.floor(game.fragments*0.1); // keep 10% frags
+  BLDG.forEach(b=>{ game.buildings[b.id]=0; game.bldCosts[b.id]=b.baseCost; game.bldMults[b.id]=1; });
+  game.upgrades={}; game.research={};
+  game.clickPower=1; game.clickCombo=0; game.clickComboMult=1;
+  game.attackPower=1; game.defense=0; game.currentEnemy=null; game.victories=0;
+  game.dimensions={1:{unlocked:false,res:0,gens:0}};
+  game.dimResources={ether:0,astral:0,shadow:0,cosmic:0};
+  game.dimGens={ether:0,astral:0,shadow:0,cosmic:0};
+  game.activeChallenge=null;
+  game.currentEvent=null; game.eventTimer=0;
+  // Mana Noire + Artifacts + eclats SURVIVE
+  // Mana shop also survives
+  // Apply "start_bld" mana shop bonuses
+  MANA_SHOP.forEach(ms=>{
+    const owned = game.manaShopOwned[ms.id]||0;
+    if(owned>0 && ms.type==='start_bld'){
+      game.buildings.collecteur += ms.value*owned;
+      game.bldCosts.collecteur = Math.ceil(BLDG[0].baseCost * Math.pow(1.15, game.buildings.collecteur));
+    }
+  });
+  notify(`⭐ PRESTIGE #${presN}! +${fmt(gain)} Cristaux! Prochain requis: ${fmt(getPrestigeReq())} Aura`);
+  checkAchievements();
+  updateDisplay();
+  saveGameToServer();
+}
+function doAscension(){
+  const req = getAscensionReq();
+  if(game.crystals < req.crystals){ notify(`❌ Besoin de ${req.crystals} Cristaux`); return; }
+  if(game.stats.totalPrestiges < req.prestiges){ notify(`❌ Besoin de ${req.prestiges} Prestiges au total`); return; }
+  const gain = getEclatGain();
+  game.eclats += gain;
+  game.stats.ascensionCount++;
+  // Reset crystals too
+  game.crystals = 0;
+  doPrestige(); // full prestige reset happens
+  // Notify after prestige
+  notify(`🌠 ASCENSION! +${gain} Éclat(s) de Réalité! Bonus total: +${(getEclatProdMult()-1)*100|0}%`);
+  updateDisplay();
+  saveGameToServer();
+}
+function doTranscendance(){
+  const req = getTranscendanceReq();
+  if(game.eclats < req.eclats){ notify(`❌ Besoin de ${req.eclats} Éclats`); return; }
+  if(game.stats.ascensionCount < req.ascensions){ notify(`❌ Besoin de ${req.ascensions} Ascensions`); return; }
+  const gain = 1;
+  game.noyaux += gain;
+  game.eclats = 0;
+  game.stats.transcendanceCount++;
+  // Hard reset (keeps only noyaux, artifacts, very few other things)
+  const saveNoyaux = game.noyaux;
+  const saveAch = game.achievements;
+  const saveArts = game.artifacts;
+  const saveMana = game.manaNoire;
+  const saveManaShop = game.manaShopOwned;
+  const saveStats = game.stats;
+  const g2 = defaultGame();
+  g2.noyaux = saveNoyaux;
+  g2.achievements = saveAch;
+  g2.artifacts = saveArts;
+  g2.manaNoire = saveMana;
+  g2.manaShopOwned = saveManaShop;
+  g2.stats = saveStats;
+  g2.stats.transcendanceCount++;
+  Object.assign(game, g2);
+  notify(`💫 TRANSCENDANCE! +1 Noyau Cosmique! Bonus: +${(getNoyauProdMult()-1)*100|0}% prod!`);
+  checkAchievements();
+  updateDisplay();
+  saveGameToServer();
+}
+
+// =========================================================
+// COMBAT
+// =========================================================
+const ENEMY_NAMES=['Ombre Cosmique','Démon Astral','Gardien Éthéré','Entité du Chaos','Spectre du Vide','Liche Dimensionnelle'];
+const BOSS_NAMES=['Archon de l\'Obscurité','Dieu-Titan','Seigneur du Vide','Gardien Primordial','Nécromancien Étoilé'];
+function getAttackPower(){
+  return (game.attackPower||1) * getResearchAtkMult() * (game.challengeRewards?.chal2 ? 3 : 1)
+    * ((game.artifacts||[]).reduce((m,a)=>(a.effect==='atk_flat'?m:m),1));
+}
+function findEnemy(){
+  const isBoss = (game.victories||0)%10===9;
+  const level = Math.floor((game.victories||0)/5)+1;
+  const mult = isBoss ? 5 : 1;
+  const hp = Math.floor(15*level*mult*(0.8+Math.random()*0.4));
+  const power = Math.floor(3*level*mult);
+  let fragReward = Math.floor(8*level*mult*(0.7+Math.random()*0.6));
+  fragReward = Math.floor(fragReward * getResearchFragMult());
+  if(game.upgrades.frag_boost) fragReward = Math.floor(fragReward*2);
+  (game.artifacts||[]).forEach(a=>{ if(a.effect==='frag_mult') fragReward=Math.floor(fragReward*a.value); });
+  if(isBoss && game.upgrades.boss_bonus) fragReward = Math.floor(fragReward*3);
+  game.currentEnemy = {
+    name: isBoss ? BOSS_NAMES[Math.floor(Math.random()*BOSS_NAMES.length)] : ENEMY_NAMES[Math.floor(Math.random()*ENEMY_NAMES.length)],
+    hp:hp, maxHp:hp, power:power, reward:fragReward, level:level, isBoss:isBoss
+  };
+  updateDisplay();
+}
+function attackEnemy(){
+  if(!game.currentEnemy) return;
+  const e = game.currentEnemy;
+  const atk = getAttackPower() + (game.defense||0);
+  const flatAtk = (game.artifacts||[]).reduce((s,a)=>(a.effect==='atk_flat'?s+a.value:s),0);
+  const dmg = Math.max(1, atk + flatAtk - e.power/2);
+  e.hp -= dmg;
+  if(e.hp<=0){
+    game.fragments += e.reward;
+    game.victories++;
+    game.stats.totalEnemies++;
+    if(e.isBoss){ game.bossCount++; game.stats.totalBossKills++; notify(`💀 BOSS vaincu! +${fmt(e.reward)} Fragments!`); unlockAch('ach_boss1'); }
+    else notify(`⚔️ Victoire! +${fmt(e.reward)} Fragments`);
+    game.currentEnemy=null;
+    if(game.activeChallenge==='chal2'){
+      game.challengeProgress.chal2=(game.challengeProgress.chal2||0)+1;
+      if(game.challengeProgress.chal2>=100) completeChallenge('chal2');
+    }
+    checkAchievements();
+  }
+  updateDisplay();
+}
+const EQUIPMENT = [
+  {id:'eq_sword1', name:'Épée Cosmique',     desc:'+5 Attaque',  cost:5,   currency:'essence', atk:5, def:0},
+  {id:'eq_sword2', name:'Lame du Vide',       desc:'+20 Attaque', cost:25,  currency:'essence', atk:20,def:0},
+  {id:'eq_sword3', name:'Épée Primordiale',   desc:'+100 Attaque',cost:150, currency:'essence', atk:100,def:0},
+  {id:'eq_armor1', name:'Armure Énergétique', desc:'+3 Défense',  cost:5,   currency:'essence', atk:0, def:3},
+  {id:'eq_armor2', name:'Égide Dimensionnelle',desc:'+15 Défense',cost:30,  currency:'essence', atk:0, def:15},
+  {id:'eq_armor3', name:'Carapace Cosmique',  desc:'+80 Défense', cost:200, currency:'essence', atk:0, def:80},
+];
+function buyEquipment(id){
+  const eq=EQUIPMENT.find(x=>x.id===id);
+  if(!eq||game.upgrades[id]) return;
+  if(eq.currency==='essence'&&game.essence<eq.cost){notify('❌ Pas assez d\'Essence');return;}
+  game.essence-=eq.cost;
+  game.upgrades[id]=true;
+  game.attackPower+=(eq.atk||0);
+  game.defense+=(eq.def||0);
+  notify(`🛡️ ${eq.name} équipé!`);
+  updateDisplay();
+}
+
+// =========================================================
+// DIMENSIONS
+// =========================================================
+const DIM_DEF=[
+  {id:1,name:'Dimension Éthérée',    resource:'ether', cost:30,  costCur:'crystals', aps:0.5, genCost:100, genCur:'ether',  emoji:'🌿'},
+  {id:2,name:'Dimension Astrale',    resource:'astral',cost:150, costCur:'crystals', aps:2,   genCost:500, genCur:'astral', emoji:'🌙'},
+  {id:3,name:'Dimension Ombreuse',   resource:'shadow',cost:800, costCur:'crystals', aps:10,  genCost:2000,genCur:'shadow', emoji:'🌑'},
+  {id:4,name:'Dimension Cosmique',   resource:'cosmic',cost:5000,costCur:'crystals', aps:50,  genCost:10000,genCur:'cosmic',emoji:'🌌'},
+];
+function unlockDimension(id){
+  const d=DIM_DEF.find(x=>x.id===id);
+  if(!d) return;
+  if(!game.research.r_dim1){ notify('❌ Débloquer la recherche "Voyage Dimensionnel" d\'abord!'); return; }
+  if(game.crystals<d.cost){ notify(`❌ Besoin de ${d.cost} Cristaux`); return; }
+  game.crystals-=d.cost;
+  game.dimGens[d.resource]=game.dimGens[d.resource]||0;
+  game.dimResources[d.resource]=game.dimResources[d.resource]||0;
+  if(!game.dimensions) game.dimensions={};
+  game.dimensions[id]={unlocked:true,res:0,gens:0};
+  notify(`🌍 Dimension ${d.name} débloquée!`);
+  unlockAch('ach_asc1'); // placeholder
+  updateDisplay();
+}
+function buyDimGen(id){
+  const d=DIM_DEF.find(x=>x.id===id);
+  if(!d) return;
+  const res = d.resource;
+  if((game.dimResources[res]||0) < d.genCost){ notify(`❌ Besoin de ${d.genCost} ${res}`); return; }
+  game.dimResources[res]-=d.genCost;
+  game.dimGens[res]=(game.dimGens[res]||0)+1;
+  notify(`✅ Générateur ${d.name} acheté!`);
+  updateDisplay();
+}
+
+// =========================================================
+// ARTIFACTS
+// =========================================================
+function searchArtifact(rare=false){
+  const cost = rare ? 500 : 100;
+  const bossReq = rare ? 10 : 0;
+  if(game.fragments<cost){ notify(`❌ Besoin de ${cost} Fragments`); return; }
+  if(rare && game.bossCount<bossReq){ notify(`❌ Besoin de ${bossReq} boss vaincus`); return; }
+  game.fragments-=cost;
+  let pool = rare ? ARTIFACT_POOL.filter(a=>a.rare) : ARTIFACT_POOL.filter(a=>!a.rare);
+  if(pool.length===0) pool=ARTIFACT_POOL;
+  const art=pool[Math.floor(Math.random()*pool.length)];
+  game.artifacts.push({...art});
+  notify(`💎 Artefact trouvé: ${art.name}!`);
+  checkAchievements();
+  updateDisplay();
+}
+
+// =========================================================
+// CHALLENGES
+// =========================================================
+function startChallenge(id){
+  if(game.activeChallenge){ notify('❌ Finissez d\'abord le défi actif!'); return; }
+  if(game.completedChallenges.includes(id)){ notify('Défi déjà complété!'); return; }
+  game.activeChallenge=id;
+  game.challengeProgress[id]=id==='chal3'?Date.now():0;
+  notify(`🎯 Défi "${CHALLENGES.find(c=>c.id===id)?.name}" commencé!`);
+  updateDisplay();
+}
+function checkChallengeProgress(){
+  if(!game.activeChallenge) return;
+  const ch=CHALLENGES.find(c=>c.id===game.activeChallenge);
+  if(!ch) return;
+  if(ch.type==='no_bld' && game.aura>=(ch.target||100000000)) completeChallenge(ch.id);
+  if(ch.type==='speed'){
+    const elapsed=(Date.now()-(game.challengeProgress.chal3||Date.now()))/1000;
+    if(game.aura>=ch.target && elapsed<=600) completeChallenge(ch.id);
+    else if(elapsed>600){ game.activeChallenge=null; notify('❌ Défi Speed Run échoué! Temps dépassé.'); }
+  }
+  if(ch.type==='no_research' && game.aura>=getPrestigeReq()-1) completeChallenge(ch.id);
+  if(ch.type==='only_coll' && game.aura>=(ch.target||1000000000)) completeChallenge(ch.id);
+}
+function completeChallenge(id){
+  const ch=CHALLENGES.find(c=>c.id===id);
+  if(!ch) return;
+  game.completedChallenges.push(id);
+  game.activeChallenge=null;
+  if(!game.challengeRewards) game.challengeRewards={};
+  game.challengeRewards[id]=true;
+  notify(`🎉 DÉFI "${ch.name}" COMPLÉTÉ! Récompense: ${ch.reward}`);
+  unlockAch('ach_chal1');
+  updateDisplay();
+}
+function abandonChallenge(){
+  if(!game.activeChallenge) return;
+  notify(`❌ Défi abandonné.`);
+  game.activeChallenge=null;
+  updateDisplay();
+}
+
+// =========================================================
+// EVENTS
+// =========================================================
+function triggerRandomEvent(){
+  if(game.currentEvent) return;
+  if(Math.random()<0.015){
+    const ev=EVENTS_DEF[Math.floor(Math.random()*EVENTS_DEF.length)];
+    game.currentEvent={...ev};
+    game.eventTimer=ev.dur;
+    document.getElementById('eventBanner').innerHTML=`<div class="ev-banner">${ev.name} — ${ev.desc}</div>`;
+    if(ev.effect==='crystals') game.crystals+=ev.value;
+    if(ev.effect==='fragments') game.fragments+=ev.value;
+    if(ev.effect==='essence') game.essence+=ev.value;
+    if(ev.effect==='instant'){ const bonus=getAPS()*600; game.aura+=bonus; game.totalAura+=bonus; game.stats.totalAuraAllTime+=bonus; }
+    notify(ev.name);
+  }
+}
+
+// =========================================================
+// DAILY WHEEL
+// =========================================================
+const WHEEL_REWARDS=[
+  {type:'aura',    value:500000},
+  {type:'essence', value:5},
+  {type:'crystals',value:3},
+  {type:'fragments',value:100},
+  {type:'manaNoire',value:20},
+  {type:'instant_prod', value:3600}, // 1hr of production
+  {type:'artifact', value:null},
+];
+function spinDailyWheel(){
+  const today=new Date().toDateString();
+  if(game.lastDailyWheel===today){ notify('❌ Roue déjà utilisée aujourd\'hui!'); return; }
+  const r=WHEEL_REWARDS[Math.floor(Math.random()*WHEEL_REWARDS.length)];
+  switch(r.type){
+    case 'aura': game.aura+=r.value; game.totalAura+=r.value; notify(`🎡 +${fmt(r.value)} Aura!`); break;
+    case 'essence': game.essence+=r.value; notify(`🎡 +${r.value} Essence!`); break;
+    case 'crystals': game.crystals+=r.value; notify(`🎡 +${r.value} Cristaux!`); break;
+    case 'fragments': game.fragments+=r.value; notify(`🎡 +${r.value} Fragments!`); break;
+    case 'manaNoire': game.manaNoire+=r.value; notify(`🎡 +${r.value} Mana Noire!`); break;
+    case 'instant_prod':{const bonus=getAPS()*r.value;game.aura+=bonus;game.totalAura+=bonus;notify(`🎡 +${fmt(bonus)} Aura (1h prod)!`);break;}
+    case 'artifact': searchArtifact(); notify('🎡 Artefact offert!'); break;
+  }
+  game.lastDailyWheel=today;
+  updateDisplay();
+}
+
+// =========================================================
+// ACHIEVEMENTS
+// =========================================================
+function unlockAch(id){
+  if(game.achievements[id]) return;
+  const a=ACHS.find(x=>x.id===id);
+  if(!a) return;
+  game.achievements[id]=true;
+  notify(`🏆 Succès débloqué: ${a.icon} ${a.name}`);
+}
+function checkAchievements(){
+  const s=game.stats;
+  if(game.aura>=100)     unlockAch('ach_first');
+  if(game.aura>=1000)    unlockAch('ach_1k');
+  if(game.totalAura>=1e6)unlockAch('ach_1m');
+  if(game.totalAura>=1e9)unlockAch('ach_1b');
+  if(s.totalClicks>=100)  unlockAch('ach_click100');
+  if(s.totalClicks>=10000)unlockAch('ach_click10k');
+  const totalBlds=BLDG.reduce((s,b)=>s+(game.buildings[b.id]||0),0);
+  if(totalBlds>=50)  unlockAch('ach_bld50');
+  if(totalBlds>=500) unlockAch('ach_bld500');
+  if(s.totalPrestiges>=1)  unlockAch('ach_pres1');
+  if(s.totalPrestiges>=5)  unlockAch('ach_pres5');
+  if(s.totalPrestiges>=10) unlockAch('ach_pres10');
+  if(s.ascensionCount>=1)  unlockAch('ach_asc1');
+  if(s.totalEnemies>=10)   unlockAch('ach_enemy10');
+  if(s.totalBossKills>=10) unlockAch('ach_boss10');
+  if((game.artifacts||[]).length>=3)  unlockAch('ach_art3');
+  if((game.artifacts||[]).length>=10) unlockAch('ach_art10');
+  if(game.essence>=100)  unlockAch('ach_ess100');
+  if(game.crystals>=50)  unlockAch('ach_cryst50');
+  if(game.manaNoire>=100) unlockAch('ach_mana100');
+  if(s.transcendanceCount>=1) unlockAch('ach_trans1');
+}
+
+// =========================================================
+// DISPLAY
+// =========================================================
+function updateDisplay(){
+  const aps = getAPS();
+  const aura = game.aura||0;
+  // Top bar
+  document.getElementById('tb-aura').textContent = fmt(aura);
+  document.getElementById('tb-aps').textContent = fmt(aps)+'/s';
+  document.getElementById('tb-ess').textContent = fmt(game.essence||0);
+  document.getElementById('tb-cryst').textContent = fmt(game.crystals||0);
+  document.getElementById('tb-frag').textContent = fmt(game.fragments||0);
+  const manaNoire = game.manaNoire||0;
+  const eclats = game.eclats||0;
+  if(game.buildings.etoileNoire>0 || manaNoire>0){
+    document.getElementById('tb-mana-pill').style.display='flex';
+    document.getElementById('tb-mana').textContent = fmt(manaNoire);
+  }
+  if(eclats>0 || (game.stats.ascensionCount||0)>0){
+    document.getElementById('tb-ecl-pill').style.display='flex';
+    document.getElementById('tb-ecl').textContent = fmt(eclats);
+  }
+  const combo = game.clickCombo||0;
+  if(combo>3){
+    document.getElementById('tb-combo').style.display='flex';
+    document.getElementById('tb-combo-val').textContent = fmtDec(game.clickComboMult||1);
+  } else { document.getElementById('tb-combo').style.display='none'; }
+
+  // Main tab
+  const setT=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
+  setT('m-aura', fmt(aura));
+  setT('m-aps', fmt(aps)+'/s');
+  setT('m-mult', '×'+fmtDec(getGlobalMult(),2));
+  setT('m-clic', fmt(getClickPowerActual()));
+  setT('m-ess', fmt(game.essence||0));
+  setT('m-cryst', fmt(game.crystals||0));
+  setT('m-col', (game.buildings.collecteur||0));
+  setT('m-amp', (game.buildings.amplificateur||0));
+  setT('m-res', (game.buildings.resonateur||0));
+  setT('m-sing',(game.buildings.singularite||0));
+  setT('m-nex', (game.buildings.nexus||0));
+  setT('m-por', (game.buildings.portail||0));
+  setT('m-etn', (game.buildings.etoileNoire||0));
+  setT('m-frac',(game.buildings.fracteur||0));
+  setT('m-npres', game.stats.totalPrestiges||0);
+  setT('m-nasc',  game.stats.ascensionCount||0);
+  setT('m-ntrans',game.stats.transcendanceCount||0);
+  setT('m-vic',   game.victories||0);
+  setT('m-boss',  game.bossCount||0);
+  setT('m-ecl',   fmt(eclats));
+  setT('m-noy',   game.noyaux||0);
+  // Prestige box
+  const req = getPrestigeReq();
+  const pct = Math.min(100, (aura/req)*100);
+  setT('m-pres-req', fmt(req)+' Aura');
+  setT('m-pres-gain', fmt(getCrystalGain())+' Cristaux');
+  setT('m-cryst-bonus', '+'+((getCrystalProdMult()-1)*100).toFixed(1)+'%');
+  setT('prestige-count-badge', '×'+(game.stats.totalPrestiges||0));
+  const pp=document.getElementById('prog-prestige');
+  if(pp){ pp.style.width=pct.toFixed(2)+'%'; pp.textContent=pct.toFixed(1)+'%'; }
+  const btnP=document.getElementById('btn-prestige');
+  if(btnP) btnP.disabled=aura<req;
+  // Ascension box
+  const ascReq=getAscensionReq();
+  const showAsc=(game.stats.totalPrestiges||0)>=5;
+  const ascBox=document.getElementById('ascension-box');
+  if(ascBox) ascBox.style.display=showAsc?'block':'none';
+  setT('m-asc-req', fmt(ascReq.crystals)+' Cristaux');
+  setT('m-asc-pres-req', ascReq.prestiges+' Prestiges');
+  const btnA=document.getElementById('btn-ascension');
+  if(btnA) btnA.disabled=(game.crystals<ascReq.crystals||game.stats.totalPrestiges<ascReq.prestiges);
+  // Convert btn
+  const convCost = game.upgrades.ess_mastery?2500:5000;
+  setT('conv-cost', fmt(convCost));
+  const btnC=document.getElementById('btn-convert');
+  if(btnC) btnC.disabled=aura<convCost;
+  // Prestige tab
+  setT('p1-count', game.stats.totalPrestiges||0);
+  setT('p1-req', fmt(req)+' Aura');
+  setT('p1-gain', fmt(getCrystalGain()));
+  setT('p1-cryst', fmt(game.crystals||0));
+  setT('p1-mult', '×'+fmtDec(getCrystalProdMult(),2));
+  const pp1=document.getElementById('prog-p1');
+  if(pp1){ pp1.style.width=pct.toFixed(2)+'%'; pp1.textContent=pct.toFixed(1)+'%'; }
+  const b1=document.getElementById('btn-p1'); if(b1) b1.disabled=aura<req;
+  setT('p2-count', game.stats.ascensionCount||0);
+  setT('p2-cryst-req', fmt(ascReq.crystals));
+  setT('p2-pres-req', ascReq.prestiges);
+  setT('p2-gain', fmt(getEclatGain()));
+  setT('p2-ecl', fmt(eclats));
+  setT('p2-bonus', '+'+((getEclatProdMult()-1)*100).toFixed(0)+'%');
+  const b2=document.getElementById('btn-p2'); if(b2) b2.disabled=(game.crystals<ascReq.crystals||game.stats.totalPrestiges<ascReq.prestiges);
+  const trReq=getTranscendanceReq();
+  setT('p3-count', game.stats.transcendanceCount||0);
+  setT('p3-ecl-req', trReq.eclats);
+  setT('p3-asc-req', trReq.ascensions);
+  setT('p3-noy', game.noyaux||0);
+  const b3=document.getElementById('btn-p3'); if(b3) b3.disabled=(eclats<trReq.eclats||(game.stats.ascensionCount||0)<trReq.ascensions);
+  // Combat
+  setT('c-atk', fmt(getAttackPower()));
+  setT('c-def', game.defense||0);
+  setT('c-dmg', fmt(Math.max(1,getAttackPower()+(game.defense||0)-5)));
+  setT('c-vic', game.victories||0);
+  setT('c-boss-in', 10-((game.victories||0)%10));
+  renderEnemy();
+  renderEquipment();
+  // Stats
+  setT('mana-amount', fmt(manaNoire));
+  setT('mana-rate', fmt(getManaPerSec())+'/s');
+  // Artifacts
+  setT('art-frag', fmt(game.fragments||0));
+  const rareSrch=document.getElementById('rare-search-btn');
+  if(rareSrch) rareSrch.disabled=(game.fragments<500||(game.bossCount||0)<10);
+}
+
+function renderBuildings(){
+  const el=document.getElementById('buildings-list');
+  if(!el) return;
+  el.innerHTML='';
+  BLDG.forEach(b=>{
+    const cnt=game.buildings[b.id]||0;
+    const cost=game.bldCosts[b.id];
+    const aps=getBldAPS(b.id)*getGlobalMult();
+    const affordable=game.aura>=cost;
+    let bulkCost=cost;
+    if(bulkMode==='max'){
+      let tmp=0,tc=cost,ta=game.aura;
+      while(ta>=tc&&tmp<1000){ta-=tc;tc=Math.ceil(tc*1.15);tmp++;}
+      bulkCost=`MAX(${tmp})`;
+    } else if(bulkMode>1){
+      let tc=cost,tot=0;
+      for(let i=0;i<bulkMode;i++){tot+=tc;tc=Math.ceil(tc*1.15);}
+      bulkCost=fmt(tot);
+    } else { bulkCost=fmt(cost); }
+    const div=document.createElement('div');
+    div.className='bld-item'+(affordable?' affordable':'');
+    div.innerHTML=`
+      <div class="bld-emoji">${esc(b.emoji)}</div>
+      <div class="bld-info">
+        <div class="bld-name">${esc(b.name)}</div>
+        <div class="bld-desc">${esc(b.desc)}</div>
+        <div class="bld-stats">⚡ ${fmt(aps)}/s total | ×${fmtDec(game.bldMults[b.id]||1,1)} mult</div>
+      </div>
+      <div class="bld-count">${cnt}</div>
+      <div class="bld-btns">
+        <button class="btn-prime bld-buy" onclick="buyBuilding('${b.id}',${bulkMode==='max'?'\'max\'':bulkMode})">${bulkCost} Aura</button>
+      </div>`;
+    el.appendChild(div);
+  });
+}
+
+function renderUpgrades(){
+  const avEl=document.getElementById('upgrades-available');
+  const owEl=document.getElementById('upgrades-owned');
+  if(!avEl||!owEl) return;
+  avEl.innerHTML=''; owEl.innerHTML='';
+  let avCount=0;
+  UPGRADES.forEach(upg=>{
+    const owned=game.upgrades[upg.id];
+    // Check if available
+    let available=false;
+    if(upg.bldId){
+      available=(game.buildings[upg.bldId]||0)>=(upg.requires||0);
+    } else { available=true; }
+    if(!available) return;
+    const div=document.createElement('div');
+    div.className='upg-item'+(owned?' upg-owned':'');
+    const cur=upg.currency==='essence'?'💠':'✨';
+    div.innerHTML=`<div class="upg-name">${esc(upg.name)}</div><div class="upg-desc">${esc(upg.desc)}</div><div class="upg-cost">${cur} ${fmt(upg.cost)} ${upg.currency}</div>`;
+    if(!owned) div.onclick=()=>buyUpgrade(upg.id);
+    if(!owned){ avEl.appendChild(div); avCount++; }
+    else { owEl.appendChild(div); }
+  });
+  if(avCount===0) avEl.innerHTML='<div style="color:var(--muted);font-size:.82em">Achetez des bâtiments pour débloquer des améliorations.</div>';
+}
+
+function renderResearch(){
+  const el=document.getElementById('research-list');
+  const actEl=document.getElementById('research-active');
+  if(!el) return;
+  el.innerHTML=''; if(actEl) actEl.innerHTML='';
+  RESEARCH_DEF.forEach(r=>{
+    const done=game.research[r.id];
+    const locked=r.req&&!game.research[r.req];
+    const div=document.createElement('div');
+    div.className='res-node'+(done?' res-done':locked?' res-locked':'');
+    const prereqName=r.req?RESEARCH_DEF.find(x=>x.id===r.req)?.name:'';
+    div.innerHTML=`<div class="res-node-title"><span>${esc(r.name)}</span><span>${done?'✅':locked?'🔒':''}</span></div>
+      <div class="res-node-desc">${esc(r.desc)}${locked?` (Nécessite: ${esc(prereqName)})`:''}</div>
+      <div class="res-node-cost">${done?'Acquis':locked?'Verrouillé':'💠 '+r.cost+' Essence'}</div>`;
+    if(!done&&!locked) div.onclick=()=>{ buyResearch(r.id); renderResearch(); };
+    el.appendChild(div);
+    if(done&&actEl){
+      const a=document.createElement('div');
+      a.style.cssText='font-size:.8em;color:#86efac;padding:4px 8px;background:rgba(0,255,136,.07);border-radius:5px;margin-bottom:4px';
+      a.textContent='✅ '+r.name+' — '+r.desc;
+      actEl.appendChild(a);
+    }
+  });
+}
+
+function renderEnemy(){
+  const el=document.getElementById('enemy-box');
+  if(!el) return;
+  const e=game.currentEnemy;
+  if(!e){ el.innerHTML='<div style="color:var(--muted);text-align:center;padding:30px">Aucun ennemi actif<br><small>Cliquez "Trouver un ennemi"</small></div>'; return; }
+  const pct=Math.max(0,(e.hp/e.maxHp)*100);
+  el.innerHTML=`<div class="enemy-card">
+    <div class="enemy-name ${e.isBoss?'enemy-boss':''}">${e.isBoss?'⚠️ BOSS: ':''}${esc(e.name)} Niv.${e.level}</div>
+    <div class="stat-row"><span class="stat-lbl">PV</span><span class="stat-val">${Math.ceil(e.hp)}/${Math.ceil(e.maxHp)}</span></div>
+    <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:linear-gradient(90deg,#ff4757,#ff6348)">${pct.toFixed(0)}%</div></div>
+    <div class="stat-row"><span class="stat-lbl">Puissance ennemie</span><span class="stat-val">${e.power}</span></div>
+    <div class="stat-row"><span class="stat-lbl">Récompense</span><span class="stat-val">${fmt(e.reward)} Fragments</span></div>
+    <button class="btn btn-red" onclick="attackEnemy()">⚔️ Attaquer! (dmg: ${fmt(Math.max(1,getAttackPower()+(game.defense||0)-e.power/2))})</button>
+  </div>`;
+}
+
+function renderEquipment(){
+  const el=document.getElementById('equipment-list');
+  if(!el) return;
+  el.innerHTML='';
+  EQUIPMENT.forEach(eq=>{
+    const owned=game.upgrades[eq.id];
+    const div=document.createElement('div');
+    div.style.cssText='background:rgba(0,0,0,.2);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:7px';
+    div.innerHTML=`<div style="color:${owned?'#86efac':'var(--cy)'};font-size:.88em;font-weight:bold">${eq.name}</div>
+      <div style="color:var(--muted);font-size:.77em">${eq.desc}</div>
+      <div style="color:#fcd34d;font-size:.75em">💠 ${eq.cost} Essence</div>
+      ${owned?'<div style="color:#86efac;font-size:.75em;margin-top:4px">✅ Équipé</div>':'<button class="btn btn-cyan" style="margin-top:6px;font-size:.77em;padding:6px" onclick="buyEquipment(\''+eq.id+'\')">Acheter</button>'}`;
+    el.appendChild(div);
+  });
+}
+
+function renderDimensions(){
+  const el=document.getElementById('dim-list');
+  if(!el) return;
+  el.innerHTML='';
+  DIM_DEF.forEach(d=>{
+    const unlocked=game.dimensions&&game.dimensions[d.id]&&game.dimensions[d.id].unlocked;
+    const res=game.dimResources[d.resource]||0;
+    const gens=game.dimGens[d.resource]||0;
+    const div=document.createElement('div');
+    div.className='dim-card'+(unlocked?'':' dim-locked');
+    div.innerHTML=`<div style="color:#a78bfa;font-weight:bold;font-size:1em;margin-bottom:8px">${d.emoji} ${esc(d.name)}</div>
+      <div class="stat-row"><span class="stat-lbl">${esc(d.resource)}</span><span class="stat-val">${fmt(res)}</span></div>
+      <div class="stat-row"><span class="stat-lbl">Générateurs</span><span class="stat-val">${gens}</span></div>
+      <div class="stat-row"><span class="stat-lbl">Production/sec</span><span class="stat-val">${fmtDec(gens*d.aps,2)}</span></div>
+      ${unlocked
+        ? `<button class="btn btn-prime" onclick="buyDimGen(${d.id})" style="font-size:.8em">Générateur (${fmt(d.genCost)} ${esc(d.resource)})</button>`
+        : `<button class="btn btn-gold" onclick="unlockDimension(${d.id})" style="font-size:.8em">Débloquer (${d.cost} Cristaux${game.research.r_dim1?'':' + Recherche Voyage Dim.'})</button>`
+      }`;
+    el.appendChild(div);
+  });
+}
+
+function renderArtifacts(){
+  const el=document.getElementById('artifact-list');
+  if(!el) return;
+  if((game.artifacts||[]).length===0){el.innerHTML='<div style="color:var(--muted);font-size:.85em">Aucun artefact trouvé. Battez des ennemis pour obtenir des fragments!</div>';return;}
+  el.innerHTML='';
+  game.artifacts.forEach(a=>{
+    const div=document.createElement('div');
+    div.className='art-item';
+    div.innerHTML=`<div class="art-name">${esc(a.name)}</div><div style="color:var(--muted);font-size:.8em">${esc(a.desc)}</div>`;
+    el.appendChild(div);
+  });
+}
+
+function renderManaShop(){
+  const el=document.getElementById('mana-shop');
+  const actEl=document.getElementById('mana-active');
+  if(!el) return;
+  el.innerHTML=''; if(actEl) actEl.innerHTML='';
+  MANA_SHOP.forEach(ms=>{
+    const owned=game.manaShopOwned[ms.id]||0;
+    const maxed=owned>=ms.maxBuy;
+    const div=document.createElement('div');
+    div.className='mana-item';
+    div.innerHTML=`<div class="mana-item-name">${esc(ms.name)} (${owned}/${ms.maxBuy})</div>
+      <div class="mana-item-desc">${esc(ms.desc)}</div>
+      <button class="btn btn-mana" style="font-size:.78em;margin-top:6px;padding:6px" ${maxed?'disabled':''} onclick="buyManaShop('${ms.id}')">🔥 ${fmt(ms.cost)} Mana${maxed?' — MAX':''}</button>`;
+    el.appendChild(div);
+    if(owned>0&&actEl){
+      const a=document.createElement('div');
+      a.style.cssText='font-size:.8em;color:var(--mn);padding:4px 8px;background:rgba(255,107,53,.07);border-radius:5px;margin-bottom:4px';
+      a.textContent=`🔥 ${ms.name} ×${owned} — ${ms.desc}`;
+      actEl.appendChild(a);
+    }
+  });
+}
+
+function renderChallenges(){
+  const el=document.getElementById('challenges-list');
+  if(!el) return;
+  el.innerHTML='';
+  CHALLENGES.forEach(ch=>{
+    const done=game.completedChallenges.includes(ch.id);
+    const active=game.activeChallenge===ch.id;
+    const div=document.createElement('div');
+    div.className='chal-item'+(active?' chal-active':done?' chal-done':'');
+    let prog='';
+    if(active){
+      if(ch.type==='speed'){const el2=(Date.now()-(game.challengeProgress.chal3||Date.now()))/1000;prog=`<div style="color:var(--go);font-size:.8em">⏱ ${Math.floor(el2)}s / 600s — Aura actuelle: ${fmt(game.aura)}</div>`;}
+      else if(ch.type==='combat') prog=`<div style="color:var(--go);font-size:.8em">Victoires: ${game.challengeProgress.chal2||0}/100</div>`;
+      else prog=`<div style="color:var(--go);font-size:.8em">Aura actuelle: ${fmt(game.aura)} / ${fmt(ch.target||0)}</div>`;
+    }
+    div.innerHTML=`<div style="font-weight:bold;color:${done?'#86efac':active?'#fbbf24':'var(--cy)'}">${active?'⚡ ':done?'✅ ':''}${esc(ch.name)}</div>
+      <div style="color:var(--muted);font-size:.82em;margin-top:4px">${esc(ch.desc)}</div>
+      <div style="color:#fcd34d;font-size:.78em;margin-top:4px">🎁 ${esc(ch.reward)}</div>
+      ${prog}
+      ${done?'<div style="color:#86efac;font-size:.78em;margin-top:6px">✅ Complété!</div>':
+        active?`<button class="btn btn-red" style="font-size:.78em;margin-top:6px;padding:6px" onclick="abandonChallenge()">Abandonner</button>`:
+        `<button class="btn btn-gold" style="font-size:.78em;margin-top:6px;padding:6px" onclick="startChallenge('${ch.id}')">🎯 Commencer</button>`}`;
+    el.appendChild(div);
+  });
+}
+
+function renderStats(){
+  const el=document.getElementById('stats-grid');
+  if(!el) return;
+  const s=game.stats;
+  const stats=[
+    ['Aura totale gagnée',fmt(s.totalAuraAllTime||0)],
+    ['Aura ce Prestige',fmt(game.aura||0)],
+    ['Clics effectués',s.totalClicks.toLocaleString()],
+    ['Ennemis vaincus',(s.totalEnemies||0).toLocaleString()],
+    ['Boss vaincus',(s.totalBossKills||0).toLocaleString()],
+    ['Prestiges',s.totalPrestiges||0],
+    ['Ascensions',s.ascensionCount||0],
+    ['Transcendances',s.transcendanceCount||0],
+    ['Temps de jeu',formatTime(s.playTime||0)],
+    ['Artefacts collectés',(game.artifacts||[]).length],
+    ['Fragments collectés',fmt(game.fragments||0)],
+    ['APS actuelle',fmt(getAPS())+'/s'],
+    ['Multiplicateur global','×'+fmtDec(getGlobalMult(),2)],
+    ['Bonus Cristaux','+'+((getCrystalProdMult()-1)*100).toFixed(1)+'%'],
+  ];
+  el.innerHTML=stats.map(([l,v])=>`<div class="stat-row"><span class="stat-lbl">${esc(l)}</span><span class="stat-val">${esc(String(v))}</span></div>`).join('');
+}
+function formatTime(s){
+  if(s<60) return Math.floor(s)+'s';
+  if(s<3600) return Math.floor(s/60)+'m '+Math.floor(s%60)+'s';
+  return Math.floor(s/3600)+'h '+Math.floor((s%3600)/60)+'m';
+}
+
+function renderAchievements(){
+  const el=document.getElementById('ach-list');
+  if(!el) return;
+  el.innerHTML='';
+  ACHS.forEach(a=>{
+    const done=game.achievements[a.id];
+    const div=document.createElement('div');
+    div.className='ach-item'+(done?'':' ach-locked');
+    div.innerHTML=`<strong>${a.icon} ${esc(a.name)}</strong>${done?'':' 🔒'}: ${esc(a.desc)}`;
+    el.appendChild(div);
+  });
+}
+
+function drawChart(){
+  const canvas=document.getElementById('prod-chart');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  const h=game.stats.productionHistory||[];
+  canvas.width=canvas.offsetWidth||800;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(h.length<2) return;
+  const max=Math.max(...h,1);
+  const w=canvas.width; const ch=canvas.height;
+  const step=w/(h.length-1);
+  ctx.strokeStyle='#7b2ff7';ctx.lineWidth=2;ctx.beginPath();
+  h.forEach((v,i)=>{ const x=i*step; const y=ch-(v/max)*ch*0.9; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
+  ctx.stroke();
+  ctx.fillStyle='rgba(123,47,247,.15)';
+  ctx.lineTo(w,ch);ctx.lineTo(0,ch);ctx.closePath();ctx.fill();
+}
+
+// =========================================================
+// TAB SYSTEM
+// =========================================================
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  const pane=document.getElementById('tab-'+id);
+  if(pane) pane.classList.add('active');
+  if(btn) btn.classList.add('active');
+  // Render tab-specific content
+  if(id==='buildings') renderBuildings();
+  if(id==='upgrades') renderUpgrades();
+  if(id==='research'){ renderResearch(); }
+  if(id==='combat'){ renderEnemy(); renderEquipment(); }
+  if(id==='dimensions') renderDimensions();
+  if(id==='artifacts') renderArtifacts();
+  if(id==='mana') renderManaShop();
+  if(id==='challenges') renderChallenges();
+  if(id==='stats'){ renderStats(); drawChart(); }
+  if(id==='achievements') renderAchievements();
+}
+
+// =========================================================
+// GAME LOOP
+// =========================================================
+const TICK_MS=100;
+setInterval(()=>{
+  const aps=getAPS();
+  const tick=aps*TICK_MS/1000;
+  game.aura+=tick;
+  game.totalAura+=tick;
+  game.stats.totalAuraAllTime+=tick;
+  game.stats.playTime+=TICK_MS/1000;
+  // Mana Noire
+  game.manaNoire+=getManaPerSec()*TICK_MS/1000;
+  // Dimension tick
+  DIM_DEF.forEach(d=>{
+    if(game.dimensions&&game.dimensions[d.id]&&game.dimensions[d.id].unlocked){
+      game.dimResources[d.resource]=(game.dimResources[d.resource]||0)+(game.dimGens[d.resource]||0)*d.aps*TICK_MS/1000;
+    }
+  });
+  // Bots
+  if(game.bots.click || game.upgrades.auto_collect){
+    for(let i=0;i<(TICK_MS/200);i++){ // 5/sec
+      const amount=getClickPowerActual();
+      game.aura+=amount; game.totalAura+=amount; game.stats.totalAuraAllTime+=amount;
+      game.stats.totalClicks++;
+    }
+  }
+  if(game.upgrades.auto_buy||game.bots.buy){
+    // Buy cheapest affordable building
+    const sorted=[...BLDG].sort((a,b)=>game.bldCosts[a.id]-game.bldCosts[b.id]);
+    for(const b of sorted){ if(game.aura>=game.bldCosts[b.id]){ buyBuilding(b.id,1); break; } }
+  }
+  if((game.upgrades.auto_battle||game.bots.battle)){
+    if(game.currentEnemy) attackEnemy();
+    else findEnemy();
+  }
+  // Event tick
+  if(game.currentEvent){
+    game.eventTimer-=TICK_MS/1000;
+    if(game.eventTimer<=0){ game.currentEvent=null; document.getElementById('eventBanner').innerHTML=''; }
+  }
+  // Combo decay
+  if(Date.now()-(game.lastClickTime||0)>1000 && (game.clickCombo||0)>0){
+    game.clickCombo=0; game.clickComboMult=1;
+  }
+  checkChallengeProgress();
+  updateDisplay();
+},TICK_MS);
+
+// Slow tick (1/sec)
+setInterval(()=>{
+  triggerRandomEvent();
+  if(!game.stats.productionHistory) game.stats.productionHistory=[];
+  game.stats.productionHistory.push(getAPS());
+  if(game.stats.productionHistory.length>60) game.stats.productionHistory.shift();
+  checkAchievements();
+  // Render dynamic tabs
+  const activePane=document.querySelector('.tab-pane.active');
+  if(activePane){
+    const id=activePane.id.replace('tab-','');
+    if(id==='buildings') renderBuildings();
+    if(id==='upgrades') renderUpgrades();
+    if(id==='research') renderResearch();
+    if(id==='combat'){ renderEnemy(); renderEquipment(); }
+    if(id==='dimensions') renderDimensions();
+    if(id==='artifacts') renderArtifacts();
+    if(id==='mana') renderManaShop();
+    if(id==='challenges') renderChallenges();
+    if(id==='stats'){ renderStats(); drawChart(); }
+    if(id==='achievements') renderAchievements();
+  }
+},1000);
+
+// Auto-save
+setInterval(()=>{ saveGameToServer(); },30000);
+
+// =========================================================
+// AUTH
+// =========================================================
+function toggleAuthMode(){
+  isLoginMode=!isLoginMode;
+  document.getElementById('loginForm').style.display=isLoginMode?'block':'none';
+  document.getElementById('registerForm').style.display=isLoginMode?'none':'block';
+  hideErr();
+}
+function showErr(msg){ const e=document.getElementById('errMsg'); e.textContent=msg; e.style.display='block'; }
+function hideErr(){ document.getElementById('errMsg').style.display='none'; }
+
+async function doLogin(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  hideErr();
+  if(!u||!p){ showErr('Remplissez tous les champs'); return; }
+  try{
+    const {data,error}=await sbClient.rpc('login_user',{p_username:u,p_password:p});
+    if(error) throw error;
+    if(data[0].success){
+      userToken=data[0].token; currentUsername=u;
+      localStorage.setItem('authToken',userToken); localStorage.setItem('username',currentUsername);
+      await loadGameFromServer();
+      startGame();
+    } else showErr(data[0].message);
+  } catch(err){ showErr('Erreur de connexion au serveur'); console.error(err); }
+}
+
+async function doRegister(){
+  const u=document.getElementById('regUser').value.trim();
+  const p=document.getElementById('regPass').value;
+  const p2=document.getElementById('regPass2').value;
+  hideErr();
+  if(u.length<3||u.length>20){ showErr('Pseudo: 3-20 caractères'); return; }
+  if(p.length<6){ showErr('Mot de passe: minimum 6 caractères'); return; }
+  if(p!==p2){ showErr('Les mots de passe ne correspondent pas'); return; }
+  try{
+    const {data,error}=await sbClient.rpc('create_user',{p_username:u,p_password:p});
+    if(error) throw error;
+    if(data[0].success){
+      userToken=data[0].token; currentUsername=u;
+      localStorage.setItem('authToken',userToken); localStorage.setItem('username',currentUsername);
+      startGame();
+    } else showErr(data[0].message);
+  } catch(err){ showErr('Erreur de connexion au serveur'); console.error(err); }
+}
+
+function doLogout(){
+  localStorage.removeItem('authToken'); localStorage.removeItem('username');
+  userToken=null; currentUsername=null;
+  location.reload();
+}
+
+function startGame(){
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('lbBtn').style.display='block';
+  document.getElementById('topBar').style.display='flex';
+  document.getElementById('gameWrapper').style.display='block';
+  notify(`Bienvenue ${currentUsername||''}! Empire de l'Aura HARDCORE Edition.`);
+  updateDisplay(); renderBuildings();
+}
+
+async function checkExistingSession(){
+  const token=localStorage.getItem('authToken');
+  if(!token) return;
+  try{
+    const {data,error}=await sbClient.rpc('verify_token',{p_token:token});
+    if(error||!data){ doLogout(); return; }
+    userToken=token; currentUsername=localStorage.getItem('username');
+    await loadGameFromServer();
+    startGame();
+  } catch(err){ console.error(err); doLogout(); }
+}
+
+// =========================================================
+// SAVE / LOAD
+// =========================================================
+async function saveGameToServer(){
+  if(!userToken) return;
+  game.lastSave=Date.now();
+  try{
+    const {data,error}=await sbClient.rpc('save_game',{
+      p_token:userToken,
+      p_game_data:game,
+      p_total_aura:Math.floor(game.totalAura||0),
+      p_prestige_level:game.stats.totalPrestiges||0,
+      p_crystals:game.crystals||0
     });
-
-    // Défi 3
-    if (game.completedChallenges.includes(3)) mult *= 2;
-
-    return mult;
+    if(error) throw error;
+    console.log('✅ Sauvegardé');
+  } catch(err){
+    console.error('❌ Erreur sauvegarde:',err);
+    if(err.message&&err.message.includes('token')) doLogout();
+  }
 }
 
-        
-function getAuraPerSecond() {
-    let rate = 0;
-
-    // Progression exponentielle selon le nombre d’objets
-    rate += Math.pow(1.1, game.collectors) - 1;
-    rate += Math.pow(1.12, game.amplifiers) - 1;
-    rate += Math.pow(1.15, game.resonators) - 1;
-
-    rate *= getMultiplier();
-    return rate;
+function deepMerge(target,source){
+  for(const key of Object.keys(source)){
+    if(source[key]!==null&&typeof source[key]==='object'&&!Array.isArray(source[key])&&!(source[key] instanceof Date)){
+      if(!target[key]||typeof target[key]!=='object') target[key]={};
+      deepMerge(target[key],source[key]);
+    } else { target[key]=source[key]; }
+  }
 }
 
-        
-function prestige() {
-    if (game.totalAura >= 1000000) {
-        const crystalsGained = Math.floor(Math.log10(game.totalAura / 100000) * 10);
-        game.crystals += crystalsGained;
-        game.stats.totalPrestiges++;
-
-        game.aura = 0;
-        game.essence = 0;
-        game.totalAura = 0;
-        game.clickPower = 1;
-        game.collectors = 0;
-        game.amplifiers = 0;
-        game.resonators = 0;
-        game.clickUpgrade = 0;
-        game.efficiencyUpgrade = 0;
-        game.collectorCost = 10;
-        game.amplifierCost = 100;
-        game.resonatorCost = 5;
-        game.clickCost = 50;
-        game.efficiencyCost = 2;
-
-        notify(`Prestige! +${crystalsGained} cristaux`);
+async function loadGameFromServer(){
+  if(!userToken) return;
+  try{
+    const {data,error}=await sbClient.rpc('load_game',{p_token:userToken});
+    if(error) throw error;
+    if(data&&data.length>0&&data[0].game_data){
+      const saved=data[0].game_data;
+      if(Object.keys(saved).length>0){
+        deepMerge(game,saved);
+        // Ensure all BLDG exist in buildings obj
+        BLDG.forEach(b=>{
+          if(game.buildings[b.id]===undefined) game.buildings[b.id]=0;
+          if(game.bldMults[b.id]===undefined) game.bldMults[b.id]=1;
+          if(game.bldCosts[b.id]===undefined) game.bldCosts[b.id]=b.baseCost;
+        });
+        if(!game.stats) game.stats=defaultGame().stats;
+        if(!game.achievements) game.achievements={};
+        if(!game.manaShopOwned) game.manaShopOwned={};
+        if(!game.challengeRewards) game.challengeRewards={};
+        if(!game.dimResources) game.dimResources={ether:0,astral:0,shadow:0,cosmic:0};
+        if(!game.dimGens) game.dimGens={ether:0,astral:0,shadow:0,cosmic:0};
+        // Offline progress
+        const now=Date.now();
+        const offMs=now-(game.lastSave||now);
+        const offSec=Math.min(offMs/1000, 28800); // max 8h
+        const offRate=game.upgrades?.offline_prod?0.75:(game.research?.r_offline?0.5:0.25);
+        if(offSec>60){
+          const bonus=getAPS()*offSec*offRate;
+          game.aura+=bonus; game.totalAura+=bonus; game.stats.totalAuraAllTime+=bonus;
+          const manBonus=getManaPerSec()*offSec*offRate;
+          game.manaNoire+=manBonus;
+          notify(`💤 Offline ${formatTime(offSec)}: +${fmt(bonus)} Aura (${(offRate*100)|0}% eff.)`);
+        }
+        game.lastSave=now;
         updateDisplay();
-        checkAchievements();
+        notify('💾 Partie chargée!');
+      }
     }
+  } catch(err){ console.error('❌ Erreur chargement:',err); }
 }
 
-        function checkAchievements() {
-            if (!game.achievements.first && game.totalAura >= 10) {
-                game.achievements.first = true;
-                notify('🏆 Succès: Premier pas');
-            }
-            if (!game.achievements.collector10 && game.collectors >= 10) {
-                game.achievements.collector10 = true;
-                notify('🏆 Succès: Industriel');
-            }
-            if (!game.achievements.essence1 && game.essence >= 1) {
-                game.achievements.essence1 = true;
-                notify('🏆 Succès: Essence pure');
-            }
-            if (!game.achievements.prestige1 && game.crystals > 0) {
-                game.achievements.prestige1 = true;
-                notify('🏆 Succès: Ascension');
-            }
-            if (!game.achievements.aura1m && game.totalAura >= 1000000) {
-                game.achievements.aura1m = true;
-                notify('🏆 Succès: Millionnaire');
-            }
-            if (!game.achievements.warrior && game.stats.totalEnemies >= 10) {
-                game.achievements.warrior = true;
-                notify('🏆 Succès: Guerrier');
-            }
-            if (!game.achievements.artifact1 && game.artifacts.length >= 1) {
-                game.achievements.artifact1 = true;
-                notify('🏆 Succès: Collectionneur');
-            }
-            if (!game.achievements.dimension1 && (game.dimensions[1] || game.dimensions[2])) {
-                game.achievements.dimension1 = true;
-                notify('🏆 Succès: Voyageur dimensionnel');
-            }
-            if (!game.achievements.automated && (game.bots.autoCollect || game.bots.autoBuy || game.bots.autoBattle)) {
-                game.achievements.automated = true;
-                notify('🏆 Succès: Automatisé');
-            }
-            updateAchievements();
-        }
-        
-        function updateAchievements() {
-            const list = document.getElementById('achievementList');
-            list.innerHTML = '';
-            achievements.forEach(a => {
-                const div = document.createElement('div');
-                div.className = 'achievement' + (game.achievements[a.id] ? '' : ' locked');
-                div.innerHTML = `<strong>${a.name}</strong>: ${a.desc}`;
-                list.appendChild(div);
-            });
-        }
-        
-        function updateArtifactDisplay() {
-            const list = document.getElementById('artifactList');
-            list.innerHTML = '';
-            if (game.artifacts.length === 0) {
-                list.innerHTML = '<div style="color: #a0a0a0; text-align: center; padding: 20px;">Aucun artefact trouvé</div>';
-            } else {
-                game.artifacts.forEach((a, i) => {
-                    const div = document.createElement('div');
-                    div.className = 'artifact';
-                    div.innerHTML = `<div class="artifact-name">${a.name}</div><div style="color: #a0a0a0; font-size: 0.9em;">${a.desc}</div>`;
-                    list.appendChild(div);
-                });
-            }
-        }
-        
-        function updateDisplay() {
-            document.getElementById('aura').textContent = Math.floor(game.aura).toLocaleString();
-            document.getElementById('essence').textContent = game.essence.toLocaleString();
-            document.getElementById('crystals').textContent = game.crystals;
-            document.getElementById('fragments').textContent = game.fragments;
-            document.getElementById('fragmentsDisplay').textContent = game.fragments;
-            
-            const aps = getAuraPerSecond();
-            document.getElementById('auraRate').textContent = aps.toFixed(1);
-            
-            document.getElementById('collectors').textContent = game.collectors;
-            document.getElementById('amplifiers').textContent = game.amplifiers;
-            document.getElementById('resonators').textContent = game.resonators;
-            document.getElementById('multiplier').textContent = '×' + getMultiplier().toFixed(2);
-            
-            document.getElementById('collectorLevel').textContent = game.collectors;
-            document.getElementById('amplifierLevel').textContent = game.amplifiers;
-            document.getElementById('resonatorLevel').textContent = game.resonators;
-            document.getElementById('clickLevel').textContent = game.clickUpgrade;
-            document.getElementById('efficiencyLevel').textContent = game.efficiencyUpgrade;
-            
-            document.getElementById('collectorCost').textContent = game.collectorCost.toLocaleString();
-            document.getElementById('amplifierCost').textContent = game.amplifierCost.toLocaleString();
-            document.getElementById('resonatorCost').textContent = game.resonatorCost.toLocaleString();
-            document.getElementById('clickCost').textContent = game.clickCost.toLocaleString();
-            document.getElementById('efficiencyCost').textContent = game.efficiencyCost.toLocaleString();
-            
-            document.getElementById('attackPower').textContent = game.attackPower;
-            document.getElementById('defense').textContent = game.defense;
-            document.getElementById('victories').textContent = game.victories;
-            
-            if (game.currentEnemy) {
-                const pct = (game.currentEnemy.hp / game.currentEnemy.maxHp) * 100;
-                document.getElementById('enemyInfo').innerHTML = `
-                    <div class="enemy">
-                        <div class="enemy-name">${game.currentEnemy.name} Niv.${game.currentEnemy.level}</div>
-                        <div class="stat">
-                            <span>PV:</span>
-                            <span>${Math.ceil(game.currentEnemy.hp)}/${Math.ceil(game.currentEnemy.maxHp)}</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: ${pct}%; background: linear-gradient(90deg, #ff4757, #ff6348);">${pct.toFixed(0)}%</div>
-                        </div>
-                        <div class="stat">
-                            <span>Puissance:</span>
-                            <span>${game.currentEnemy.power}</span>
-                        </div>
-                        <div class="stat">
-                            <span>Récompense:</span>
-                            <span>${game.currentEnemy.reward} fragments</span>
-                        </div>
-                        <button class="btn-danger" onclick="attackEnemy()">Attaquer!</button>
-                    </div>
-                `;
-            } else {
-                document.getElementById('enemyInfo').innerHTML = '<div style="text-align: center; color: #a0a0a0; padding: 40px;">Aucun ennemi actif</div>';
-            }
-            
-            document.getElementById('ether').textContent = Math.floor(game.ether);
-            document.getElementById('etherGens').textContent = game.etherGens;
-            document.getElementById('astral').textContent = Math.floor(game.astral);
-            document.getElementById('astralGens').textContent = game.astralGens;
-            
-            document.getElementById('dim1Btn').disabled = game.dimensions[1] || game.crystals < 50;
-            document.getElementById('dim2Btn').disabled = game.dimensions[2] || game.crystals < 200 || !game.dimensions[1];
-            document.getElementById('etherGenBtn').disabled = !game.dimensions[1] || game.ether < 100;
-            document.getElementById('astralGenBtn').disabled = !game.dimensions[2] || game.astral < 500;
-            
-            if (game.dimensions[1]) document.getElementById('dim1Btn').textContent = 'Débloqué ✓';
-            if (game.dimensions[2]) document.getElementById('dim2Btn').textContent = 'Débloqué ✓';
-            
-            document.getElementById('bot1Btn').disabled = game.bots.autoCollect || game.essence < 1;
-            document.getElementById('bot2Btn').disabled = game.bots.autoBuy || game.essence < 5;
-            document.getElementById('bot3Btn').disabled = game.bots.autoBattle || game.essence < 10;
-            
-            if (game.bots.autoCollect) document.getElementById('bot1Btn').textContent = 'Actif ✓';
-            if (game.bots.autoBuy) document.getElementById('bot2Btn').textContent = 'Actif ✓';
-            if (game.bots.autoBattle) document.getElementById('bot3Btn').textContent = 'Actif ✓';
-            
-            const crystalsGained = game.totalAura >= 1000000 ? Math.floor(Math.sqrt(game.totalAura / 100000)) : 0;
-            document.getElementById('prestigeGain').textContent = crystalsGained;
-            document.getElementById('crystalBonus').textContent = '+' + (game.crystals * 10) + '%';
-            document.getElementById('prestigeBtn').disabled = game.totalAura < 1000000;
-            
-            const prestigePercent = Math.min(100, (game.totalAura / 1000000) * 100);
-            document.getElementById('prestigeProgress').style.width = prestigePercent + '%';
-            document.getElementById('prestigeProgress').textContent = prestigePercent.toFixed(1) + '%';
-            
-            document.getElementById('totalAuraCollected').textContent = Math.floor(game.totalAura).toLocaleString();
-            document.getElementById('totalClicks').textContent = game.stats.totalClicks.toLocaleString();
-            document.getElementById('totalEnemies').textContent = game.stats.totalEnemies;
-            document.getElementById('totalPrestiges').textContent = game.stats.totalPrestiges;
-            document.getElementById('playTime').textContent = Math.floor(game.stats.playTime) + 's';
-            
-            updateArtifactDisplay();
-            const convertBtn = document.getElementById('convertBtn');
-if (convertBtn) {
-    convertBtn.disabled = game.aura < game.conversionCost;
+// =========================================================
+// LEADERBOARD
+// =========================================================
+async function showLB(){
+  try{
+    const {data,error}=await sbClient.from('leaderboard').select('*').limit(50);
+    if(error) throw error;
+    const list=document.getElementById('lbList');
+    list.innerHTML='';
+    data.forEach((p,i)=>{
+      const prestige=p.prestige_level||0;
+      const li=document.createElement('li');
+      li.className='lb-item';
+      li.innerHTML=`<span class="lb-rank">#${i+1}</span>
+        <span class="lb-name">${esc(p.username||'—')} <span class="prestige-pill ${getPrestigeClass(prestige)}">${prestige} Prestiges</span></span>
+        <span class="lb-score">${fmt(p.total_aura||0)} Aura<br><small style="color:var(--go)">${p.crystals||0} 💎</small></span>`;
+      list.appendChild(li);
+    });
+    document.getElementById('lbModal').classList.add('active');
+  } catch(err){ console.error(err); notify('❌ Erreur classement'); }
+}
+function closeLB(){ document.getElementById('lbModal').classList.remove('active'); }
+
+// =========================================================
+// NOTIFICATION
+// =========================================================
+function notify(msg){
+  const c=document.getElementById('notifContainer');
+  if(!c) return;
+  const d=document.createElement('div');
+  d.className='notif';
+  d.textContent=msg;
+  c.appendChild(d);
+  setTimeout(()=>{ d.style.animation='notifOut .3s forwards'; setTimeout(()=>d.remove(),300); },3500);
 }
 
-        }
-        
-        function drawChart() {
-            const canvas = document.getElementById('productionChart');
-            const ctx = canvas.getContext('2d');
-            const history = game.stats.productionHistory.slice(-30);
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            if (history.length < 2) return;
-            
-            const max = Math.max(...history, 1);
-            const step = canvas.width / (history.length - 1);
-            
-            ctx.strokeStyle = '#7b2ff7';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            
-            history.forEach((val, i) => {
-                const x = i * step;
-                const y = canvas.height - (val / max * canvas.height * 0.9);
-                if (i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            });
-            
-            ctx.stroke();
-            
-            ctx.fillStyle = 'rgba(123, 47, 247, 0.2)';
-            ctx.lineTo(canvas.width, canvas.height);
-            ctx.lineTo(0, canvas.height);
-            ctx.closePath();
-            ctx.fill();
-        }
-        
-        setInterval(() => {
-            const aps = getAuraPerSecond();
-            game.aura += aps / 10;
-            game.totalAura += aps / 10;
-            
-            if (game.bots.autoCollect) {
-                const amount = game.clickPower * getMultiplier();
-                game.aura += amount;
-                game.totalAura += amount;
-            }
-            
-            if (game.bots.autoBuy && game.aura >= game.collectorCost) {
-                buyCollector();
-            }
-            
-            if (game.bots.autoBattle && game.currentEnemy) {
-                attackEnemy();
-            } else if (game.bots.autoBattle && !game.currentEnemy) {
-                findEnemy();
-            }
-            
-            if (game.dimensions[1]) {
-                game.ether += game.etherGens * 0.1;
-            }
-            
-            if (game.dimensions[2]) {
-                game.astral += game.astralGens * 0.5;
-            }
-            
-            if (game.currentEvent) {
-                game.eventTimer -= 0.1;
-                if (game.eventTimer <= 0) {
-                    game.currentEvent = null;
-                    document.getElementById('eventBanner').innerHTML = '';
-                }
-            }
-            
-            game.stats.playTime += 0.1;
-            
-            updateDisplay();
-            checkAchievements();
-            checkChallengeCompletion();
-        }, 100);
-        
-        setInterval(() => {
-            triggerRandomEvent();
-            game.stats.productionHistory.push(getAuraPerSecond());
-            if (game.stats.productionHistory.length > 30) {
-                game.stats.productionHistory.shift();
-            }
-            drawChart();
-        }, 1000);
-        
-        updateDisplay();
-        updateAchievements();
-        drawChart();
-    </script>
+// =========================================================
+// INIT
+// =========================================================
+checkExistingSession();
+</script>
 </body>
-
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
